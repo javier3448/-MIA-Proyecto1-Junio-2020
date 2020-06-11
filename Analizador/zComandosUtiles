@@ -1,0 +1,12 @@
+//TODO:Eliminar este archivo
+
+hexdump -C -s 13184 -n 4096 '/home/javier/Dropbox/Colegio/2020/VacasJunio/Archivos/Fase1/ArchivosDeEntradaFase2/disks/disco1.dsk' 
+
+./generador.sh
+
+exec -path="/home/javier/Dropbox/Colegio/2020/VacasJunio/Archivos/Fase1/ArchivosDeEntradaFase2/MyEntrada0.sh"
+
+exec -path="/home/javier/Dropbox/Colegio/2020/VacasJunio/Archivos/Fase1/ArchivosDeEntradaFase1/EntradaDeDiego.sh"
+exec -path="/home/javier/Dropbox/Colegio/2020/VacasJunio/Archivos/Fase1/ArchivosDeEntradaFase1/EntradaDeJon.sh"
+
+exec -path="/home/javier/Dropbox/Colegio/2020/VacasJunio/Archivos/Fase1/ArchivosDeEntradaFase1/neededBlocksTest.sh"
