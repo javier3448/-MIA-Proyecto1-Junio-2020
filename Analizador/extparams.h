@@ -41,7 +41,6 @@ public:
     char fitType = '\0';
     char deleteType = '\0';
     char type = '\0';//partType, formatType. CHAPUZ MAXIMO. Puede representar el char que especifica el tipo de particion, o en caso de ser una instruccion de formateo el tipo de formato
-    char fs = '\0';
     int size = -1;
     int add = INT_MIN;//Chapuz int min va a representar el NULL
     int ugo = -1;
@@ -79,7 +78,6 @@ public:
     void setAdd(int val);
 
     //nuevos:
-    void setFs(char val);
     void setGrp(std::string* val);
     void setDest(std::string* val);
 

@@ -13,7 +13,8 @@
 std::optional<UserSession> ExtManager::currUserSession = {};
 
 //make file system
-int ExtManager::mkfs(const std::string& id, char fsType, char formatType)
+//TODO: MODIFICAR
+int ExtManager::mkfs(const std::string& id, char formatType)
 {
     //Conseguir partition:
     auto mountedPart = DiskManager::getMountedPartition(id);
@@ -28,7 +29,7 @@ int ExtManager::mkfs(const std::string& id, char fsType, char formatType)
     }
 
     RaidOneFile file(mountedPart->path, std::ios::binary | std::ios::in | std::ios::out);
-    DiskEntity<SuperBoot> sbEntity(mountedPart->contentStart, SuperBoot(fsType, mountedPart->contentStart, mountedPart->contentSize));
+    DiskEntity<SuperBoot> sbEntity(mountedPart->contentStart, SuperBoot(SuperBoot::FS_TYPE_EXT3, mountedPart->contentStart, mountedPart->contentSize));
     if(formatType == ExtParamsConstants::FORMAT_TYPE_FULL){
         file.seekp(mountedPart->contentStart + sizeof(SuperBoot), std::ios::beg);
         std::vector<char> zeros(mountedPart->contentSize - sizeof(SuperBoot));
@@ -511,92 +512,6 @@ int ExtManager::mkDir(const std::string &path, bool p)
     return 0;
 }
 
-int ExtManager::loss(const std::string &id)
-{
-    auto mountedPart = DiskManager::getMountedPartition(id);
-    if(!mountedPart)
-    {
-        Consola::reportarError("No se ha montado una particion con el id: " + id);
-        return -1;
-    }
-    if(mountedPart->type == MountedPart::T_EXTENDED){
-        Consola::reportarError("No se puede hacer un file system dentro de una particion extendida");
-        return -1;
-    }
-
-    RaidOneFile file(mountedPart->path, std::ios::binary | std::ios::in | std::ios::out);
-    DiskEntity<SuperBoot> sbEntity(mountedPart->contentStart, &file);
-
-    auto& sb = sbEntity.value;
-
-    file.seekp(sb.bitmapInodeBegin, std::ios::beg);
-    char c = 0;
-    for(int i = sb.bitmapInodeBegin; i < (sb.blockStart + sb.blocksCount * sb.blockSize); i++){
-        file.write(&c, 1);
-    }
-
-    if(currUserSession){
-        currUserSession.reset();
-    }
-
-    return 0;
-}
-
-int ExtManager::recovery(const std::string &id)
-{
-    auto mountedPart = DiskManager::getMountedPartition(id);
-    if(!mountedPart)
-    {
-        Consola::reportarError("No se ha montado una particion con el id: " + id);
-        return -1;
-    }
-    if(mountedPart->type == MountedPart::T_EXTENDED){
-        Consola::reportarError("No se puede hacer un file system dentro de una particion extendida");
-        return -1;
-    }
-
-    RaidOneFile file(mountedPart->path, std::ios::binary | std::ios::in | std::ios::out);
-    DiskEntity<SuperBoot> sbEntity(mountedPart->contentStart, &file);
-
-    auto& sb = sbEntity.value;
-    if(sbEntity.value.filesystemType == SuperBoot::FS_TYPE_EXT2){
-        Consola::reportarError("El sistema de archivos no es ext, no se puede hacer el recoverty");
-        return -1;
-    }
-
-    if(currUserSession){
-        currUserSession.reset();
-    }
-    sbEntity.value.reset();
-    sbEntity.value.filesystemType = SuperBoot::FS_TYPE_EXT2;//CHAPUZ MAXIMO PARA QUE NO HAGA JOURNALING A COMANDOS MIENTRAS ESTA HACIENDO LA RECUPERACION
-    sbEntity.updateDiskValue(&file);
-    createRootAndUsrsTxt(&file, &sbEntity);
-    file.flush();
-
-    int journAddress = sbEntity.address + sizeof(SuperBoot);
-    while(true){
-        if(journAddress >= sb.bitmapInodeBegin){
-            break;
-        }
-        file.seekg(journAddress, std::ios::beg);
-        JournEntry journEntry;
-        file.read((char*)&journEntry, sizeof(JournEntry));
-        if(journEntry.key==0){
-            break;
-        }
-        Interprete::execJournEntry(&journEntry);
-        journAddress += sizeof (JournEntry);
-    }
-
-    //Regresamos a sistema de archivos ext, primero actualizamos el valor en ram porque es posible que alguna de las instrucciones dentro del journaling cambio el valor del sb
-    sbEntity.updateRamValue(&file);
-    sbEntity.value.filesystemType = SuperBoot::FS_TYPE_EXT3;
-    sbEntity.updateDiskValue(&file);
-
-    return 0;
-}
-
-
 bool ExtManager::updateMountTime(RaidOneFile *file, const MountedPart& mountedPart)
 {
     DiskEntity<SuperBoot> sbEntity(mountedPart.contentStart, file);
@@ -673,6 +588,7 @@ int ExtManager::chmod(const std::string &path, int ugo)
     return 0;
 }
 
+//TODO: MODIFICAR
 int ExtManager::recursiveChmod(const std::string &path, int ugo)//TODO:implementar este metodo es de hacer un metodo parecdio a folderGetClosetInode pero vamos cambiando los permisos y reportando si no se pudo cambiar un permiso
 {
     Consola::reportarError("Recursivo chmod no soportado todavia");

@@ -38,35 +38,32 @@ Grammar
    27        | FIND l_params
    28        | CHOWN l_params
    29        | CHGRP l_params
-   30        | LOSS l_params
-   31        | RECOVERY l_params
 
-   32 l_params: param l_params
-   33         | param
+   30 l_params: param l_params
+   31         | param
 
-   34 param: SIZE EQUALS INTEGER
-   35      | PATH EQUALS TEXT
-   36      | NAME EQUALS TEXT
-   37      | UNIT EQUALS UNIT_TYPE
-   38      | FIT EQUALS FIT_TYPE
-   39      | TYPE EQUALS _type
-   40      | DELETE EQUALS DELETE_TYPE
-   41      | ADD EQUALS INTEGER
-   42      | ID EQUALS TEXT
-   43      | FS EQUALS FS_TYPE
-   44      | USR EQUALS TEXT
-   45      | PWD EQUALS TEXT
-   46      | GRP EQUALS TEXT
-   47      | UGO EQUALS INTEGER
-   48      | R
-   49      | P
-   50      | CONT EQUALS TEXT
-   51      | _FILE EQUALS TEXT
-   52      | DEST EQUALS TEXT
-   53      | RUTA EQUALS TEXT
+   32 param: SIZE EQUALS INTEGER
+   33      | PATH EQUALS TEXT
+   34      | NAME EQUALS TEXT
+   35      | UNIT EQUALS UNIT_TYPE
+   36      | FIT EQUALS FIT_TYPE
+   37      | TYPE EQUALS _type
+   38      | DELETE EQUALS DELETE_TYPE
+   39      | ADD EQUALS INTEGER
+   40      | ID EQUALS TEXT
+   41      | USR EQUALS TEXT
+   42      | PWD EQUALS TEXT
+   43      | GRP EQUALS TEXT
+   44      | UGO EQUALS INTEGER
+   45      | R
+   46      | P
+   47      | CONT EQUALS TEXT
+   48      | _FILE EQUALS TEXT
+   49      | DEST EQUALS TEXT
+   50      | RUTA EQUALS TEXT
 
-   54 _type: DELETE_TYPE
-   55      | PART_TYPE
+   51 _type: DELETE_TYPE
+   52      | PART_TYPE
 
 
 Terminals, with rules where they appear
@@ -74,22 +71,22 @@ Terminals, with rules where they appear
 $end (0) 0
 error (256)
 MK_DISK (258) 4
-SIZE (259) 34
-PATH (260) 35
-UNIT (261) 37
-FIT (262) 38
-NAME (263) 36
+SIZE (259) 32
+PATH (260) 33
+UNIT (261) 35
+FIT (262) 36
+NAME (263) 34
 RM_DISK (264) 5
 F_DISK (265) 6
-TYPE (266) 39
-DELETE (267) 40
-ADD (268) 41
+TYPE (266) 37
+DELETE (267) 38
+ADD (268) 39
 MOUNT (269) 7
 UNMOUNT (270) 8
 PAUSE (271) 9
 REP (272) 10
-ID (273) 42
-RUTA (274) 53
+ID (273) 40
+RUTA (274) 50
 MK_FS (275) 11
 LOGIN (276) 12
 MK_GRP (277) 14
@@ -108,232 +105,221 @@ MV (289) 26
 FIND (290) 27
 CHOWN (291) 28
 CHGRP (292) 29
-LOSS (293) 30
-RECOVERY (294) 31
-FS (295) 43
-USR (296) 44
-PWD (297) 45
-GRP (298) 46
-UGO (299) 47
-R (300) 48
-P (301) 49
-CONT (302) 50
-_FILE (303) 51
-DEST (304) 52
-LOGOUT (305) 13
-EQUALS (306) 34 35 36 37 38 39 40 41 42 43 44 45 46 47 50 51 52 53
-LINE_BREAK (307)
-INTEGER (308) 34 41 47
-TEXT (309) 35 36 42 44 45 46 50 51 52 53
-PART_TYPE (310) 55
-UNIT_TYPE (311) 37
-FIT_TYPE (312) 38
-DELETE_TYPE (313) 40 54
-FS_TYPE (314) 43
+USR (293) 41
+PWD (294) 42
+GRP (295) 43
+UGO (296) 44
+R (297) 45
+P (298) 46
+CONT (299) 47
+_FILE (300) 48
+DEST (301) 49
+LOGOUT (302) 13
+EQUALS (303) 32 33 34 35 36 37 38 39 40 41 42 43 44 47 48 49 50
+LINE_BREAK (304)
+INTEGER (305) 32 39 44
+TEXT (306) 33 34 40 41 42 43 47 48 49 50
+PART_TYPE (307) 52
+UNIT_TYPE (308) 35
+FIT_TYPE (309) 36
+DELETE_TYPE (310) 38 51
 
 
 Nonterminals, with rules where they appear
 
-$accept (60)
+$accept (56)
     on left: 0
-S (61)
+S (57)
     on left: 1, on right: 0
-l_commands (62)
+l_commands (58)
     on left: 2 3, on right: 1 2
-command (63)
+command (59)
     on left: 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
-    24 25 26 27 28 29 30 31, on right: 2 3
-l_params (64)
-    on left: 32 33, on right: 4 5 6 7 8 10 11 12 14 15 16 17 18 19
-    20 21 22 23 24 25 26 27 28 29 30 31 32
-param (65)
-    on left: 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51
-    52 53, on right: 32 33
-_type (66)
-    on left: 54 55, on right: 39
+    24 25 26 27 28 29, on right: 2 3
+l_params (60)
+    on left: 30 31, on right: 4 5 6 7 8 10 11 12 14 15 16 17 18 19
+    20 21 22 23 24 25 26 27 28 29 30
+param (61)
+    on left: 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49
+    50, on right: 30 31
+_type (62)
+    on left: 51 52, on right: 37
 
 
 State 0
 
     0 $accept: . S $end
 
-    MK_DISK   shift, and go to state 1
-    RM_DISK   shift, and go to state 2
-    F_DISK    shift, and go to state 3
-    MOUNT     shift, and go to state 4
-    UNMOUNT   shift, and go to state 5
-    PAUSE     shift, and go to state 6
-    REP       shift, and go to state 7
-    MK_FS     shift, and go to state 8
-    LOGIN     shift, and go to state 9
-    MK_GRP    shift, and go to state 10
-    RM_GRP    shift, and go to state 11
-    MK_USR    shift, and go to state 12
-    RM_USR    shift, and go to state 13
-    CHMOD     shift, and go to state 14
-    MK_FILE   shift, and go to state 15
-    CAT       shift, and go to state 16
-    REM       shift, and go to state 17
-    EDIT      shift, and go to state 18
-    REN       shift, and go to state 19
-    MK_DIR    shift, and go to state 20
-    CP        shift, and go to state 21
-    MV        shift, and go to state 22
-    FIND      shift, and go to state 23
-    CHOWN     shift, and go to state 24
-    CHGRP     shift, and go to state 25
-    LOSS      shift, and go to state 26
-    RECOVERY  shift, and go to state 27
-    LOGOUT    shift, and go to state 28
+    MK_DISK  shift, and go to state 1
+    RM_DISK  shift, and go to state 2
+    F_DISK   shift, and go to state 3
+    MOUNT    shift, and go to state 4
+    UNMOUNT  shift, and go to state 5
+    PAUSE    shift, and go to state 6
+    REP      shift, and go to state 7
+    MK_FS    shift, and go to state 8
+    LOGIN    shift, and go to state 9
+    MK_GRP   shift, and go to state 10
+    RM_GRP   shift, and go to state 11
+    MK_USR   shift, and go to state 12
+    RM_USR   shift, and go to state 13
+    CHMOD    shift, and go to state 14
+    MK_FILE  shift, and go to state 15
+    CAT      shift, and go to state 16
+    REM      shift, and go to state 17
+    EDIT     shift, and go to state 18
+    REN      shift, and go to state 19
+    MK_DIR   shift, and go to state 20
+    CP       shift, and go to state 21
+    MV       shift, and go to state 22
+    FIND     shift, and go to state 23
+    CHOWN    shift, and go to state 24
+    CHGRP    shift, and go to state 25
+    LOGOUT   shift, and go to state 26
 
-    S           go to state 29
-    l_commands  go to state 30
-    command     go to state 31
+    S           go to state 27
+    l_commands  go to state 28
+    command     go to state 29
 
 
 State 1
 
     4 command: MK_DISK . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 52
-    param     go to state 53
+    l_params  go to state 49
+    param     go to state 50
 
 
 State 2
 
     5 command: RM_DISK . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 54
-    param     go to state 53
+    l_params  go to state 51
+    param     go to state 50
 
 
 State 3
 
     6 command: F_DISK . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 55
-    param     go to state 53
+    l_params  go to state 52
+    param     go to state 50
 
 
 State 4
 
     7 command: MOUNT . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 56
-    param     go to state 53
+    l_params  go to state 53
+    param     go to state 50
 
 
 State 5
 
     8 command: UNMOUNT . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 57
-    param     go to state 53
+    l_params  go to state 54
+    param     go to state 50
 
 
 State 6
@@ -347,1311 +333,1196 @@ State 7
 
    10 command: REP . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 58
-    param     go to state 53
+    l_params  go to state 55
+    param     go to state 50
 
 
 State 8
 
    11 command: MK_FS . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 59
-    param     go to state 53
+    l_params  go to state 56
+    param     go to state 50
 
 
 State 9
 
    12 command: LOGIN . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 60
-    param     go to state 53
+    l_params  go to state 57
+    param     go to state 50
 
 
 State 10
 
    14 command: MK_GRP . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 61
-    param     go to state 53
+    l_params  go to state 58
+    param     go to state 50
 
 
 State 11
 
    15 command: RM_GRP . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 62
-    param     go to state 53
+    l_params  go to state 59
+    param     go to state 50
 
 
 State 12
 
    16 command: MK_USR . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 63
-    param     go to state 53
+    l_params  go to state 60
+    param     go to state 50
 
 
 State 13
 
    17 command: RM_USR . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 64
-    param     go to state 53
+    l_params  go to state 61
+    param     go to state 50
 
 
 State 14
 
    18 command: CHMOD . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 65
-    param     go to state 53
+    l_params  go to state 62
+    param     go to state 50
 
 
 State 15
 
    19 command: MK_FILE . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 66
-    param     go to state 53
+    l_params  go to state 63
+    param     go to state 50
 
 
 State 16
 
    20 command: CAT . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 67
-    param     go to state 53
+    l_params  go to state 64
+    param     go to state 50
 
 
 State 17
 
    21 command: REM . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 68
-    param     go to state 53
+    l_params  go to state 65
+    param     go to state 50
 
 
 State 18
 
    22 command: EDIT . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 69
-    param     go to state 53
+    l_params  go to state 66
+    param     go to state 50
 
 
 State 19
 
    23 command: REN . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 70
-    param     go to state 53
+    l_params  go to state 67
+    param     go to state 50
 
 
 State 20
 
    24 command: MK_DIR . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 71
-    param     go to state 53
+    l_params  go to state 68
+    param     go to state 50
 
 
 State 21
 
    25 command: CP . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 72
-    param     go to state 53
+    l_params  go to state 69
+    param     go to state 50
 
 
 State 22
 
    26 command: MV . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 73
-    param     go to state 53
+    l_params  go to state 70
+    param     go to state 50
 
 
 State 23
 
    27 command: FIND . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 74
-    param     go to state 53
+    l_params  go to state 71
+    param     go to state 50
 
 
 State 24
 
    28 command: CHOWN . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 75
-    param     go to state 53
+    l_params  go to state 72
+    param     go to state 50
 
 
 State 25
 
    29 command: CHGRP . l_params
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    l_params  go to state 76
-    param     go to state 53
+    l_params  go to state 73
+    param     go to state 50
 
 
 State 26
-
-   30 command: LOSS . l_params
-
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
-
-    l_params  go to state 77
-    param     go to state 53
-
-
-State 27
-
-   31 command: RECOVERY . l_params
-
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
-
-    l_params  go to state 78
-    param     go to state 53
-
-
-State 28
 
    13 command: LOGOUT .
 
     $default  reduce using rule 13 (command)
 
 
-State 29
+State 27
 
     0 $accept: S . $end
 
-    $end  shift, and go to state 79
+    $end  shift, and go to state 74
 
 
-State 30
+State 28
 
     1 S: l_commands .
 
     $default  reduce using rule 1 (S)
 
 
-State 31
+State 29
 
     2 l_commands: command . l_commands
     3           | command .
 
-    MK_DISK   shift, and go to state 1
-    RM_DISK   shift, and go to state 2
-    F_DISK    shift, and go to state 3
-    MOUNT     shift, and go to state 4
-    UNMOUNT   shift, and go to state 5
-    PAUSE     shift, and go to state 6
-    REP       shift, and go to state 7
-    MK_FS     shift, and go to state 8
-    LOGIN     shift, and go to state 9
-    MK_GRP    shift, and go to state 10
-    RM_GRP    shift, and go to state 11
-    MK_USR    shift, and go to state 12
-    RM_USR    shift, and go to state 13
-    CHMOD     shift, and go to state 14
-    MK_FILE   shift, and go to state 15
-    CAT       shift, and go to state 16
-    REM       shift, and go to state 17
-    EDIT      shift, and go to state 18
-    REN       shift, and go to state 19
-    MK_DIR    shift, and go to state 20
-    CP        shift, and go to state 21
-    MV        shift, and go to state 22
-    FIND      shift, and go to state 23
-    CHOWN     shift, and go to state 24
-    CHGRP     shift, and go to state 25
-    LOSS      shift, and go to state 26
-    RECOVERY  shift, and go to state 27
-    LOGOUT    shift, and go to state 28
+    MK_DISK  shift, and go to state 1
+    RM_DISK  shift, and go to state 2
+    F_DISK   shift, and go to state 3
+    MOUNT    shift, and go to state 4
+    UNMOUNT  shift, and go to state 5
+    PAUSE    shift, and go to state 6
+    REP      shift, and go to state 7
+    MK_FS    shift, and go to state 8
+    LOGIN    shift, and go to state 9
+    MK_GRP   shift, and go to state 10
+    RM_GRP   shift, and go to state 11
+    MK_USR   shift, and go to state 12
+    RM_USR   shift, and go to state 13
+    CHMOD    shift, and go to state 14
+    MK_FILE  shift, and go to state 15
+    CAT      shift, and go to state 16
+    REM      shift, and go to state 17
+    EDIT     shift, and go to state 18
+    REN      shift, and go to state 19
+    MK_DIR   shift, and go to state 20
+    CP       shift, and go to state 21
+    MV       shift, and go to state 22
+    FIND     shift, and go to state 23
+    CHOWN    shift, and go to state 24
+    CHGRP    shift, and go to state 25
+    LOGOUT   shift, and go to state 26
 
     $default  reduce using rule 3 (l_commands)
 
-    l_commands  go to state 80
-    command     go to state 31
+    l_commands  go to state 75
+    command     go to state 29
+
+
+State 30
+
+   32 param: SIZE . EQUALS INTEGER
+
+    EQUALS  shift, and go to state 76
+
+
+State 31
+
+   33 param: PATH . EQUALS TEXT
+
+    EQUALS  shift, and go to state 77
 
 
 State 32
 
-   34 param: SIZE . EQUALS INTEGER
+   35 param: UNIT . EQUALS UNIT_TYPE
 
-    EQUALS  shift, and go to state 81
+    EQUALS  shift, and go to state 78
 
 
 State 33
 
-   35 param: PATH . EQUALS TEXT
+   36 param: FIT . EQUALS FIT_TYPE
 
-    EQUALS  shift, and go to state 82
+    EQUALS  shift, and go to state 79
 
 
 State 34
 
-   37 param: UNIT . EQUALS UNIT_TYPE
+   34 param: NAME . EQUALS TEXT
 
-    EQUALS  shift, and go to state 83
+    EQUALS  shift, and go to state 80
 
 
 State 35
 
-   38 param: FIT . EQUALS FIT_TYPE
+   37 param: TYPE . EQUALS _type
 
-    EQUALS  shift, and go to state 84
+    EQUALS  shift, and go to state 81
 
 
 State 36
 
-   36 param: NAME . EQUALS TEXT
+   38 param: DELETE . EQUALS DELETE_TYPE
 
-    EQUALS  shift, and go to state 85
+    EQUALS  shift, and go to state 82
 
 
 State 37
 
-   39 param: TYPE . EQUALS _type
+   39 param: ADD . EQUALS INTEGER
 
-    EQUALS  shift, and go to state 86
+    EQUALS  shift, and go to state 83
 
 
 State 38
 
-   40 param: DELETE . EQUALS DELETE_TYPE
+   40 param: ID . EQUALS TEXT
 
-    EQUALS  shift, and go to state 87
+    EQUALS  shift, and go to state 84
 
 
 State 39
 
-   41 param: ADD . EQUALS INTEGER
+   50 param: RUTA . EQUALS TEXT
 
-    EQUALS  shift, and go to state 88
+    EQUALS  shift, and go to state 85
 
 
 State 40
 
-   42 param: ID . EQUALS TEXT
+   41 param: USR . EQUALS TEXT
 
-    EQUALS  shift, and go to state 89
+    EQUALS  shift, and go to state 86
 
 
 State 41
 
-   53 param: RUTA . EQUALS TEXT
+   42 param: PWD . EQUALS TEXT
 
-    EQUALS  shift, and go to state 90
+    EQUALS  shift, and go to state 87
 
 
 State 42
 
-   43 param: FS . EQUALS FS_TYPE
+   43 param: GRP . EQUALS TEXT
 
-    EQUALS  shift, and go to state 91
+    EQUALS  shift, and go to state 88
 
 
 State 43
 
-   44 param: USR . EQUALS TEXT
+   44 param: UGO . EQUALS INTEGER
 
-    EQUALS  shift, and go to state 92
+    EQUALS  shift, and go to state 89
 
 
 State 44
 
-   45 param: PWD . EQUALS TEXT
+   45 param: R .
 
-    EQUALS  shift, and go to state 93
+    $default  reduce using rule 45 (param)
 
 
 State 45
 
-   46 param: GRP . EQUALS TEXT
+   46 param: P .
 
-    EQUALS  shift, and go to state 94
+    $default  reduce using rule 46 (param)
 
 
 State 46
 
-   47 param: UGO . EQUALS INTEGER
+   47 param: CONT . EQUALS TEXT
 
-    EQUALS  shift, and go to state 95
+    EQUALS  shift, and go to state 90
 
 
 State 47
 
-   48 param: R .
+   48 param: _FILE . EQUALS TEXT
 
-    $default  reduce using rule 48 (param)
+    EQUALS  shift, and go to state 91
 
 
 State 48
 
-   49 param: P .
+   49 param: DEST . EQUALS TEXT
 
-    $default  reduce using rule 49 (param)
+    EQUALS  shift, and go to state 92
 
 
 State 49
-
-   50 param: CONT . EQUALS TEXT
-
-    EQUALS  shift, and go to state 96
-
-
-State 50
-
-   51 param: _FILE . EQUALS TEXT
-
-    EQUALS  shift, and go to state 97
-
-
-State 51
-
-   52 param: DEST . EQUALS TEXT
-
-    EQUALS  shift, and go to state 98
-
-
-State 52
 
     4 command: MK_DISK l_params .
 
     $default  reduce using rule 4 (command)
 
 
-State 53
+State 50
 
-   32 l_params: param . l_params
-   33         | param .
+   30 l_params: param . l_params
+   31         | param .
 
-    SIZE    shift, and go to state 32
-    PATH    shift, and go to state 33
-    UNIT    shift, and go to state 34
-    FIT     shift, and go to state 35
-    NAME    shift, and go to state 36
-    TYPE    shift, and go to state 37
-    DELETE  shift, and go to state 38
-    ADD     shift, and go to state 39
-    ID      shift, and go to state 40
-    RUTA    shift, and go to state 41
-    FS      shift, and go to state 42
-    USR     shift, and go to state 43
-    PWD     shift, and go to state 44
-    GRP     shift, and go to state 45
-    UGO     shift, and go to state 46
-    R       shift, and go to state 47
-    P       shift, and go to state 48
-    CONT    shift, and go to state 49
-    _FILE   shift, and go to state 50
-    DEST    shift, and go to state 51
+    SIZE    shift, and go to state 30
+    PATH    shift, and go to state 31
+    UNIT    shift, and go to state 32
+    FIT     shift, and go to state 33
+    NAME    shift, and go to state 34
+    TYPE    shift, and go to state 35
+    DELETE  shift, and go to state 36
+    ADD     shift, and go to state 37
+    ID      shift, and go to state 38
+    RUTA    shift, and go to state 39
+    USR     shift, and go to state 40
+    PWD     shift, and go to state 41
+    GRP     shift, and go to state 42
+    UGO     shift, and go to state 43
+    R       shift, and go to state 44
+    P       shift, and go to state 45
+    CONT    shift, and go to state 46
+    _FILE   shift, and go to state 47
+    DEST    shift, and go to state 48
 
-    $default  reduce using rule 33 (l_params)
+    $default  reduce using rule 31 (l_params)
 
-    l_params  go to state 99
-    param     go to state 53
+    l_params  go to state 93
+    param     go to state 50
 
 
-State 54
+State 51
 
     5 command: RM_DISK l_params .
 
     $default  reduce using rule 5 (command)
 
 
-State 55
+State 52
 
     6 command: F_DISK l_params .
 
     $default  reduce using rule 6 (command)
 
 
-State 56
+State 53
 
     7 command: MOUNT l_params .
 
     $default  reduce using rule 7 (command)
 
 
-State 57
+State 54
 
     8 command: UNMOUNT l_params .
 
     $default  reduce using rule 8 (command)
 
 
-State 58
+State 55
 
    10 command: REP l_params .
 
     $default  reduce using rule 10 (command)
 
 
-State 59
+State 56
 
    11 command: MK_FS l_params .
 
     $default  reduce using rule 11 (command)
 
 
-State 60
+State 57
 
    12 command: LOGIN l_params .
 
     $default  reduce using rule 12 (command)
 
 
-State 61
+State 58
 
    14 command: MK_GRP l_params .
 
     $default  reduce using rule 14 (command)
 
 
-State 62
+State 59
 
    15 command: RM_GRP l_params .
 
     $default  reduce using rule 15 (command)
 
 
-State 63
+State 60
 
    16 command: MK_USR l_params .
 
     $default  reduce using rule 16 (command)
 
 
-State 64
+State 61
 
    17 command: RM_USR l_params .
 
     $default  reduce using rule 17 (command)
 
 
-State 65
+State 62
 
    18 command: CHMOD l_params .
 
     $default  reduce using rule 18 (command)
 
 
-State 66
+State 63
 
    19 command: MK_FILE l_params .
 
     $default  reduce using rule 19 (command)
 
 
-State 67
+State 64
 
    20 command: CAT l_params .
 
     $default  reduce using rule 20 (command)
 
 
-State 68
+State 65
 
    21 command: REM l_params .
 
     $default  reduce using rule 21 (command)
 
 
-State 69
+State 66
 
    22 command: EDIT l_params .
 
     $default  reduce using rule 22 (command)
 
 
-State 70
+State 67
 
    23 command: REN l_params .
 
     $default  reduce using rule 23 (command)
 
 
-State 71
+State 68
 
    24 command: MK_DIR l_params .
 
     $default  reduce using rule 24 (command)
 
 
-State 72
+State 69
 
    25 command: CP l_params .
 
     $default  reduce using rule 25 (command)
 
 
-State 73
+State 70
 
    26 command: MV l_params .
 
     $default  reduce using rule 26 (command)
 
 
-State 74
+State 71
 
    27 command: FIND l_params .
 
     $default  reduce using rule 27 (command)
 
 
-State 75
+State 72
 
    28 command: CHOWN l_params .
 
     $default  reduce using rule 28 (command)
 
 
-State 76
+State 73
 
    29 command: CHGRP l_params .
 
     $default  reduce using rule 29 (command)
 
 
-State 77
-
-   30 command: LOSS l_params .
-
-    $default  reduce using rule 30 (command)
-
-
-State 78
-
-   31 command: RECOVERY l_params .
-
-    $default  reduce using rule 31 (command)
-
-
-State 79
+State 74
 
     0 $accept: S $end .
 
     $default  accept
 
 
-State 80
+State 75
 
     2 l_commands: command l_commands .
 
     $default  reduce using rule 2 (l_commands)
 
 
+State 76
+
+   32 param: SIZE EQUALS . INTEGER
+
+    INTEGER  shift, and go to state 94
+
+
+State 77
+
+   33 param: PATH EQUALS . TEXT
+
+    TEXT  shift, and go to state 95
+
+
+State 78
+
+   35 param: UNIT EQUALS . UNIT_TYPE
+
+    UNIT_TYPE  shift, and go to state 96
+
+
+State 79
+
+   36 param: FIT EQUALS . FIT_TYPE
+
+    FIT_TYPE  shift, and go to state 97
+
+
+State 80
+
+   34 param: NAME EQUALS . TEXT
+
+    TEXT  shift, and go to state 98
+
+
 State 81
 
-   34 param: SIZE EQUALS . INTEGER
+   37 param: TYPE EQUALS . _type
 
-    INTEGER  shift, and go to state 100
+    PART_TYPE    shift, and go to state 99
+    DELETE_TYPE  shift, and go to state 100
+
+    _type  go to state 101
 
 
 State 82
 
-   35 param: PATH EQUALS . TEXT
+   38 param: DELETE EQUALS . DELETE_TYPE
 
-    TEXT  shift, and go to state 101
+    DELETE_TYPE  shift, and go to state 102
 
 
 State 83
 
-   37 param: UNIT EQUALS . UNIT_TYPE
+   39 param: ADD EQUALS . INTEGER
 
-    UNIT_TYPE  shift, and go to state 102
+    INTEGER  shift, and go to state 103
 
 
 State 84
 
-   38 param: FIT EQUALS . FIT_TYPE
-
-    FIT_TYPE  shift, and go to state 103
-
-
-State 85
-
-   36 param: NAME EQUALS . TEXT
+   40 param: ID EQUALS . TEXT
 
     TEXT  shift, and go to state 104
 
 
+State 85
+
+   50 param: RUTA EQUALS . TEXT
+
+    TEXT  shift, and go to state 105
+
+
 State 86
 
-   39 param: TYPE EQUALS . _type
+   41 param: USR EQUALS . TEXT
 
-    PART_TYPE    shift, and go to state 105
-    DELETE_TYPE  shift, and go to state 106
-
-    _type  go to state 107
+    TEXT  shift, and go to state 106
 
 
 State 87
 
-   40 param: DELETE EQUALS . DELETE_TYPE
+   42 param: PWD EQUALS . TEXT
 
-    DELETE_TYPE  shift, and go to state 108
+    TEXT  shift, and go to state 107
 
 
 State 88
 
-   41 param: ADD EQUALS . INTEGER
+   43 param: GRP EQUALS . TEXT
 
-    INTEGER  shift, and go to state 109
+    TEXT  shift, and go to state 108
 
 
 State 89
 
-   42 param: ID EQUALS . TEXT
+   44 param: UGO EQUALS . INTEGER
 
-    TEXT  shift, and go to state 110
+    INTEGER  shift, and go to state 109
 
 
 State 90
 
-   53 param: RUTA EQUALS . TEXT
+   47 param: CONT EQUALS . TEXT
 
-    TEXT  shift, and go to state 111
+    TEXT  shift, and go to state 110
 
 
 State 91
 
-   43 param: FS EQUALS . FS_TYPE
+   48 param: _FILE EQUALS . TEXT
 
-    FS_TYPE  shift, and go to state 112
+    TEXT  shift, and go to state 111
 
 
 State 92
 
-   44 param: USR EQUALS . TEXT
+   49 param: DEST EQUALS . TEXT
 
-    TEXT  shift, and go to state 113
+    TEXT  shift, and go to state 112
 
 
 State 93
 
-   45 param: PWD EQUALS . TEXT
+   30 l_params: param l_params .
 
-    TEXT  shift, and go to state 114
+    $default  reduce using rule 30 (l_params)
 
 
 State 94
 
-   46 param: GRP EQUALS . TEXT
+   32 param: SIZE EQUALS INTEGER .
 
-    TEXT  shift, and go to state 115
+    $default  reduce using rule 32 (param)
 
 
 State 95
 
-   47 param: UGO EQUALS . INTEGER
+   33 param: PATH EQUALS TEXT .
 
-    INTEGER  shift, and go to state 116
+    $default  reduce using rule 33 (param)
 
 
 State 96
 
-   50 param: CONT EQUALS . TEXT
-
-    TEXT  shift, and go to state 117
-
-
-State 97
-
-   51 param: _FILE EQUALS . TEXT
-
-    TEXT  shift, and go to state 118
-
-
-State 98
-
-   52 param: DEST EQUALS . TEXT
-
-    TEXT  shift, and go to state 119
-
-
-State 99
-
-   32 l_params: param l_params .
-
-    $default  reduce using rule 32 (l_params)
-
-
-State 100
-
-   34 param: SIZE EQUALS INTEGER .
-
-    $default  reduce using rule 34 (param)
-
-
-State 101
-
-   35 param: PATH EQUALS TEXT .
+   35 param: UNIT EQUALS UNIT_TYPE .
 
     $default  reduce using rule 35 (param)
 
 
-State 102
+State 97
 
-   37 param: UNIT EQUALS UNIT_TYPE .
-
-    $default  reduce using rule 37 (param)
-
-
-State 103
-
-   38 param: FIT EQUALS FIT_TYPE .
-
-    $default  reduce using rule 38 (param)
-
-
-State 104
-
-   36 param: NAME EQUALS TEXT .
+   36 param: FIT EQUALS FIT_TYPE .
 
     $default  reduce using rule 36 (param)
 
 
-State 105
+State 98
 
-   55 _type: PART_TYPE .
+   34 param: NAME EQUALS TEXT .
 
-    $default  reduce using rule 55 (_type)
-
-
-State 106
-
-   54 _type: DELETE_TYPE .
-
-    $default  reduce using rule 54 (_type)
+    $default  reduce using rule 34 (param)
 
 
-State 107
+State 99
 
-   39 param: TYPE EQUALS _type .
+   52 _type: PART_TYPE .
+
+    $default  reduce using rule 52 (_type)
+
+
+State 100
+
+   51 _type: DELETE_TYPE .
+
+    $default  reduce using rule 51 (_type)
+
+
+State 101
+
+   37 param: TYPE EQUALS _type .
+
+    $default  reduce using rule 37 (param)
+
+
+State 102
+
+   38 param: DELETE EQUALS DELETE_TYPE .
+
+    $default  reduce using rule 38 (param)
+
+
+State 103
+
+   39 param: ADD EQUALS INTEGER .
 
     $default  reduce using rule 39 (param)
 
 
-State 108
+State 104
 
-   40 param: DELETE EQUALS DELETE_TYPE .
+   40 param: ID EQUALS TEXT .
 
     $default  reduce using rule 40 (param)
 
 
-State 109
+State 105
 
-   41 param: ADD EQUALS INTEGER .
-
-    $default  reduce using rule 41 (param)
-
-
-State 110
-
-   42 param: ID EQUALS TEXT .
-
-    $default  reduce using rule 42 (param)
-
-
-State 111
-
-   53 param: RUTA EQUALS TEXT .
-
-    $default  reduce using rule 53 (param)
-
-
-State 112
-
-   43 param: FS EQUALS FS_TYPE .
-
-    $default  reduce using rule 43 (param)
-
-
-State 113
-
-   44 param: USR EQUALS TEXT .
-
-    $default  reduce using rule 44 (param)
-
-
-State 114
-
-   45 param: PWD EQUALS TEXT .
-
-    $default  reduce using rule 45 (param)
-
-
-State 115
-
-   46 param: GRP EQUALS TEXT .
-
-    $default  reduce using rule 46 (param)
-
-
-State 116
-
-   47 param: UGO EQUALS INTEGER .
-
-    $default  reduce using rule 47 (param)
-
-
-State 117
-
-   50 param: CONT EQUALS TEXT .
+   50 param: RUTA EQUALS TEXT .
 
     $default  reduce using rule 50 (param)
 
 
-State 118
+State 106
 
-   51 param: _FILE EQUALS TEXT .
+   41 param: USR EQUALS TEXT .
 
-    $default  reduce using rule 51 (param)
+    $default  reduce using rule 41 (param)
 
 
-State 119
+State 107
 
-   52 param: DEST EQUALS TEXT .
+   42 param: PWD EQUALS TEXT .
 
-    $default  reduce using rule 52 (param)
+    $default  reduce using rule 42 (param)
+
+
+State 108
+
+   43 param: GRP EQUALS TEXT .
+
+    $default  reduce using rule 43 (param)
+
+
+State 109
+
+   44 param: UGO EQUALS INTEGER .
+
+    $default  reduce using rule 44 (param)
+
+
+State 110
+
+   47 param: CONT EQUALS TEXT .
+
+    $default  reduce using rule 47 (param)
+
+
+State 111
+
+   48 param: _FILE EQUALS TEXT .
+
+    $default  reduce using rule 48 (param)
+
+
+State 112
+
+   49 param: DEST EQUALS TEXT .
+
+    $default  reduce using rule 49 (param)

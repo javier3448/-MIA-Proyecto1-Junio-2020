@@ -22,7 +22,7 @@
 class ExtManager
 {
 public:
-    static int mkfs(const std::string& id, char fsType, char formatType);
+    static int mkfs(const std::string& id, char formatType);
     static int login(const std::string& usr, const std::string& pwd, const std::string& id);
     static int logout();
     static int mkGrp(const std::string& name);
@@ -41,8 +41,6 @@ public:
     static int edit(const std::string& path, const std::string& content);
     static int ren(const std::string& path, const std::string& name);
     static int mkDir(const std::string& path, bool p);
-    static int loss(const std::string& id);
-    static int recovery(const std::string& id);
 
     //Verifica si la particion tiene un sb, de ser asi actualiza su lastMountTime
     static bool updateMountTime(RaidOneFile* file, const MountedPart& mountedPart);

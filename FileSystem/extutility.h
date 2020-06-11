@@ -12,5 +12,7 @@ namespace ExtUtility {
     //Para un archivo de tamano <bytes>, retorna el numero de bloques necesarios
     //que ocuparia ese archivo en el sistema de archivos
     int neededBlocks(int bytes);
+
+    //TODO: Dado un inodo y un n-esimo byte, conseguir un el bloque que contiene ese byte
 }
 #endif // BLOCK_H

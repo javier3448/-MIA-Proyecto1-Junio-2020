@@ -73,9 +73,6 @@
 %token<intValue> FIND;
 %token<intValue> CHOWN;
 %token<intValue> CHGRP;
-%token<intValue>LOSS;
-%token<intValue>RECOVERY;
-%token<intValue>FS;
 %token<intValue>USR;
 %token<intValue>PWD;
 %token<intValue>GRP;
@@ -96,7 +93,6 @@
 %token<stringPtrValue> UNIT_TYPE;
 %token<stringPtrValue> FIT_TYPE;
 %token<stringPtrValue> DELETE_TYPE;
-%token<stringPtrValue>FS_TYPE;
 
 //---------NON TERMINALS---------
 %start S;
@@ -404,28 +400,6 @@ command: MK_DISK l_params
              }
              lwhParams->reset();
          }
-         |
-         LOSS l_params
-         {
-             Consola::printCommandLine("LOSS: ");
-             if(Interprete::loss(lwhParams) < 0){
-                 Consola::reportarLinea(yylineno, column);
-             }else{
-                 Consola::printCommandLine("    DONE");
-             }
-             lwhParams->reset();
-         }
-         |
-         RECOVERY l_params
-         {
-             Consola::printCommandLine("RECOVERY: ");
-             if(Interprete::recovery(lwhParams) < 0){
-                 Consola::reportarLinea(yylineno, column);
-             }else{
-                 Consola::printCommandLine("    DONE");
-             }
-             lwhParams->reset();
-         }
 ;
 
 l_params: param l_params
@@ -476,11 +450,6 @@ param: SIZE EQUALS INTEGER
        ID EQUALS TEXT
        {
            lwhParams->setId($3);
-       }
-       |
-       FS EQUALS FS_TYPE
-       {
-           lwhParams->setFs((*$3)[0] - 48);
        }
        |
        USR EQUALS TEXT

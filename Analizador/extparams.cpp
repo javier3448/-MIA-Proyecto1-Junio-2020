@@ -21,7 +21,6 @@ void ExtParams::reset()
     fitType = '\0';
     deleteType = '\0';
     type = '\0';
-    fs = '\0';
     size = -1;
     add = INT_MIN;
     ugo = -1;
@@ -185,11 +184,6 @@ void ExtParams::setRuta(std::string* val)
 void ExtParams::setAdd(int val)
 {
     add = val;
-}
-
-void ExtParams::setFs(char val)
-{
-    fs = val;
 }
 
 void ExtParams::setGrp(std::string *val)

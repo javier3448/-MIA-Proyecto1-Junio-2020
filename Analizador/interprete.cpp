@@ -291,18 +291,16 @@ int Interprete::mkfs(ExtParams* params)
 {
     std::string msg = exclusiveDefines(params,
                                        pf::ID,
-                                       pf::TYPE | pf::FS);
+                                       pf::TYPE);
     if(msg.length()){
         msg = "Parametros no validos para comando mkFs: " + msg;
         Consola::reportarError(msg);
         return -1;
     }
 
-    char fsType = (params->fs ? params->fs : ExtParamsConstants::FS_EXT2);
-
     char type = (params->type ? params->type : ExtParamsConstants::FORMAT_TYPE_FULL);
 
-    return ExtManager::mkfs(*(params->id), fsType, type);
+    return ExtManager::mkfs(*(params->id), type);
 }
 
 int Interprete::login(ExtParams* params)
@@ -660,35 +658,6 @@ int Interprete::chgrp(ExtParams* params)
     return ExtManager::chgrp(*params->usr, *params->grp);
 }
 
-int Interprete::loss(ExtParams *params)
-{
-    std::string msg = exclusiveDefines(params,
-                                       pf::ID,
-                                       0);
-    if(msg.length()){
-        msg = "Parametros no validos para comando loss: " + msg;
-        Consola::reportarError(msg);
-        return -1;
-    }
-
-    return ExtManager::loss(*params->id);
-}
-
-int Interprete::recovery(ExtParams *params)
-{
-    std::string msg = exclusiveDefines(params,
-                                       pf::ID,
-                                       0);
-    if(msg.length()){
-        msg = "Parametros no validos para comando recovery: " + msg;
-        Consola::reportarError(msg);
-        return -1;
-    }
-
-    return ExtManager::recovery(*params->id);
-}
-
-
 //Verifica si params contiene una definicion NO NULL para todos los parametros listados en flags
 //Retorna el mensaje de error en caso que un parametro este mal definido
 std::string Interprete::nullDefines(ExtParams* params, int paramFlag)
@@ -729,12 +698,6 @@ std::string Interprete::nullDefines(ExtParams* params, int paramFlag)
     {
         if(params->type != '\0'){
             returnString +=  "\n    type no es un parametro valido";
-        }
-    }
-    if(paramFlag & pf::FS)
-    {
-        if(params->fs != '\0'){
-            returnString +=  "\n    fs no es un parametro valido";
         }
     }
     if(paramFlag & pf::SIZE)
@@ -859,12 +822,6 @@ std::string Interprete::defines(ExtParams* params, int paramFlag)
             returnString +=  "\n    type no definido";
         }
     }
-    if(paramFlag & pf::FS)
-    {
-        if(params->fs == '\0'){
-            returnString +=  "\n    fs no definido";
-        }
-    }
     if(paramFlag & pf::SIZE)
     {
         if(params->size < 0){
@@ -946,12 +903,6 @@ std::string Interprete::defines(ExtParams* params, int paramFlag)
             returnString += "\n    dest no definido";
         }
     }
-    if(paramFlag & pf::FS)
-    {
-        if(params->fs){
-            returnString += "\n    fs no definido";
-        }
-    }
 
     return returnString;
 }
@@ -962,196 +913,3 @@ std::string Interprete::exclusiveDefines(ExtParams* params, int requiredParms, i
     std::string returnString = defines(params, requiredParms) + nullDefines(params, nullParams);
     return returnString;
 }
-
-
-
-void Interprete::execJournEntry(struct JournEntry *journEntry)
-{
-    ExtParams params = ExtParams();
-    auto& u = journEntry->u;//bleh: codigo algo feito
-    switch(journEntry->key){
-    case Cmd::LOGOUT:
-        Consola::printCommandLine("LOGOUT");
-        if(logout(&params) < 0){
-            Consola::reportarComando("LOGOUT");
-        }else{
-            Consola::printCommandLine("    DONE");
-        }
-        break;
-    case Cmd::LOGIN:
-        params.setUsr(new std::string(u.login.name));
-        params.setPwd(new std::string(u.login.pwd));
-        params.setId(new std::string(u.login.id));
-        Consola::printCommandLine("LOGIN");
-        if(login(&params) < 0){
-            Consola::reportarComando("LOGIN");
-        }else{
-            Consola::printCommandLine("    DONE");
-        }
-        break;
-    case Cmd::MKGRP:
-        params.setName(new std::string(u.mkGrp.name));
-        Consola::printCommandLine("MKGRP");
-        if(mkgrp(&params) < 0){
-            Consola::reportarComando("MKGRP");
-        }else{
-            Consola::printCommandLine("    DONE");
-        }
-        break;
-    case Cmd::RMGRP:
-        params.setName(new std::string(u.rmGrp.name));
-        Consola::printCommandLine("RMGRP");
-        if(rmgrp(&params) < 0){
-            Consola::reportarComando("RMGRP");
-        }else{
-            Consola::printCommandLine("    DONE");
-        }
-        break;
-    case Cmd::MKUSR:
-        params.setName(new std::string(u.mkUsr.name));
-        params.setPwd(new std::string(u.mkUsr.pwd));
-        params.setGrp(new std::string(u.mkUsr.grp));
-        Consola::printCommandLine("MKUSR");
-        if(mkusr(&params) < 0){
-            Consola::reportarComando("MKUSR");
-        }else{
-            Consola::printCommandLine("    DONE");
-        }
-        break;
-    case Cmd::RMUSR:
-        params.setName(new std::string(u.rmUsr.name));
-        Consola::printCommandLine("RMUSR");
-        if(rmusr(&params) < 0){
-            Consola::reportarComando("RMUSR");
-        }else{
-            Consola::printCommandLine("    DONE");
-        }
-        break;
-    case Cmd::CHMOD:
-        params.setPath(new std::string(u.chMod.path));
-        params.setR(u.chMod.r);
-        params.setUgo(u.chMod.ugo);
-        Consola::printCommandLine("CHMOD");
-        if(chmod(&params) < 0){
-            Consola::reportarComando("CHMOD");
-        }else{
-            Consola::printCommandLine("    DONE");
-        }
-        break;
-    case Cmd::MKFILE:
-        params.setPath(new std::string(u.mkFile.path));
-        params.setP(u.mkFile.p);
-        params.setSize(u.mkFile.size);
-        if(u.mkFile.cont[0] != '\0'){//Si es cont vacio asumimos que el usuario no definio ese parametro al ejecutar el comando mkfile
-            params.setCont(new std::string(u.mkFile.cont));
-        }
-        Consola::printCommandLine("MKFILE");
-        if(mkfile(&params) < 0){
-            Consola::reportarComando("MKFILE");
-        }else{
-            Consola::printCommandLine("    DONE");
-        }
-        break;
-    case Cmd::CAT:
-        params.setFiles(new std::string(u.cat.file));
-        Consola::printCommandLine("CAT");
-        if(cat(&params) < 0){
-            Consola::reportarComando("CAT");
-        }else{
-            Consola::printCommandLine("    DONE");
-        }
-        break;
-    case Cmd::REM:
-        params.setPath(new std::string(u.rem.path));
-        Consola::printCommandLine("REM");
-        if(rem(&params) < 0){
-            Consola::reportarComando("REM");
-        }else{
-            Consola::printCommandLine("    DONE");
-        }
-        break;
-    case Cmd::EDIT:
-        params.setPath(new std::string(u.edit.path));
-        params.setCont(new std::string(u.edit.cont));
-        Consola::printCommandLine("EDIT");
-        if(edit(&params) < 0){
-            Consola::reportarComando("EDIT");
-        }else{
-            Consola::printCommandLine("    DONE");
-        }
-        break;
-    case Cmd::REN:
-        params.setPath(new std::string(u.ren.path));
-        params.setName(new std::string(u.ren.name));
-        Consola::printCommandLine("REN");
-        if(ren(&params) < 0){
-            Consola::reportarComando("REN");
-        }else{
-            Consola::printCommandLine("    DONE");
-        }
-        break;
-    case Cmd::MKDIR:
-        params.setPath(new std::string(u.mkDir.path));
-        params.setP(u.mkDir.p);
-        Consola::printCommandLine("MKDIR");
-        if(mkdir(&params) < 0){
-            Consola::reportarComando("MKDIR");
-        }else{
-            Consola::printCommandLine("    DONE");
-        }
-        break;
-    case Cmd::CP:
-        params.setPath(new std::string(u.cp.path));
-        params.setDest(new std::string(u.cp.dest));
-        Consola::printCommandLine("CP");
-        if(cp(&params) < 0){
-            Consola::reportarComando("CP");
-        }else{
-            Consola::printCommandLine("    DONE");
-        }
-        break;
-    case Cmd::MV:
-        params.setPath(new std::string(u.mv.path));
-        params.setDest(new std::string(u.mv.dest));
-        Consola::printCommandLine("MV");
-        if(mv(&params) < 0){
-            Consola::reportarComando("MV");
-        }else{
-            Consola::printCommandLine("    DONE");
-        }
-        break;
-    case Cmd::FIND:
-        params.setPath(new std::string(u.find.path));
-        params.setName(new std::string(u.find.name));
-        Consola::printCommandLine("FIND");
-        if(find(&params) < 0){
-            Consola::reportarComando("FIND");
-        }else{
-            Consola::printCommandLine("    DONE");
-        }
-        break;
-    case Cmd::CHOWN:
-        params.setPath(new std::string(u.chown.path));
-        params.setR(u.chown.r);
-        params.setUsr(new std::string(u.chown.usr));
-        Consola::printCommandLine("CHOWN");
-        if(chown(&params) < 0){
-            Consola::reportarComando("CHOWN");
-        }else{
-            Consola::printCommandLine("    DONE");
-        }
-        break;
-    case Cmd::CHGRP:
-        params.setUsr(new std::string(u.chgrp.usr));
-        params.setGrp(new std::string(u.chgrp.grp));
-        Consola::printCommandLine("CHGRP");
-        if(chgrp(&params) < 0){
-            Consola::reportarComando("CHGRP");
-        }else{
-            Consola::printCommandLine("    DONE");
-        }
-        break;
-    }
-}
-
-

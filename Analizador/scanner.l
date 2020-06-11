@@ -79,10 +79,7 @@ equals "="
     "find" { column = column + previous; previous = strlen(yytext); yylval.intValue = -1; return FIND; }
     "chown" { column = column + previous; previous = strlen(yytext); yylval.intValue = -1; return CHOWN; }
     "chgrp" { column = column + previous; previous = strlen(yytext); yylval.intValue = -1; return CHGRP; }
-    "loss" { column = column + previous; previous = strlen(yytext); yylval.intValue = -1; return LOSS; }
-    "recovery" { column = column + previous; previous = strlen(yytext); yylval.intValue = -1; return RECOVERY; }
 
-    "-fs" { column = column + previous; previous = strlen(yytext); yylval.intValue = -1; return FS; }
     "-usr" { column = column + previous; previous = strlen(yytext); yylval.intValue = -1; return USR; }
     "-pwd" { column = column + previous; previous = strlen(yytext); yylval.intValue = -1; return PWD; }
     "-grp" { column = column + previous; previous = strlen(yytext); yylval.intValue = -1; return GRP; }
@@ -103,7 +100,6 @@ equals "="
     {fitType} { column = column + previous; previous = strlen(yytext); yylval.stringPtrValue = new std::string(yytext); return FIT_TYPE;}
     {deleteType} { column = column + previous; previous = strlen(yytext); yylval.stringPtrValue = new std::string(yytext); return DELETE_TYPE;}
     {Integer} { column = column + previous; previous = strlen(yytext); yylval.intValue = std::stoi(yytext); return INTEGER;}
-    {fsType} { column = column + previous; previous = strlen(yytext); yylval.stringPtrValue = new std::string(yytext); return FS_TYPE;}
     {Text} { column = column + previous; previous = strlen(yytext); yylval.stringPtrValue = new std::string(yytext); return TEXT;}
 
     [[:blank:]] { column++; }

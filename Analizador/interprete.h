@@ -33,9 +33,8 @@ namespace Interprete
         const int CONT = 1 << 17;
         const int RUTA = 1 << 18;
 
-        const int FS = 1 << 19;
-        const int GRP = 1 << 20;
-        const int DEST = 1 << 21;
+        const int GRP = 1 << 19;
+        const int DEST = 1 << 20;
     }
 
     //TODO: AGREGAR Y QUITAR LOS COMANDOS NECESARIOS PARA PREPARAR LA FASE 2
@@ -46,8 +45,6 @@ namespace Interprete
     };
 
     int compile(const std::string& srcCode);
-
-    void execJournEntry(struct JournEntry* journEntry);
 
     int mkDisk(ExtParams* params);
     int rmDisk(ExtParams* params);
@@ -78,8 +75,6 @@ namespace Interprete
     int find(ExtParams* params);
     int chown(ExtParams* params);
     int chgrp(ExtParams* params);
-    int loss(ExtParams* params);
-    int recovery(ExtParams* params);
 
     int rep(ExtParams* params);
 
