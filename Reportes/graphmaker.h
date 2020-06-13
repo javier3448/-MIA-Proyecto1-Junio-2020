@@ -46,9 +46,6 @@ private:
     static void writeTableExtendedPart(std::string& outDotCode, RaidOneFile* file, Partition* extendedPart, float disksize);
     static void splitSubDirNameAndRemainingPath(const std::string& absolutePath, std::string& subDirName, std::string& remainingPath);
     static void splitDirPathAndFileName(const std::string& absolutePath, std::string& dirPath, std::string& fileName);
-    static std::string dateToString(const std::tm& time, const std::string& fmt = "%d-%m-%Y %H:%M:%S");
-    static std::string charToString(char c);
-    static std::string floatToString(float f);
 };
 
 #endif // GRAPHMAKER_H

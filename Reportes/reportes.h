@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "raidonefile.h"
+#include "FileSystem/journaling.h"
 
 class Reportes
 {
@@ -19,11 +20,15 @@ public:
     static int repTree(const std::string& idPart, const std::string& path);
     static int repBlock(const std::string &idPart, const std::string& path);
     static int repInode(const std::string &idPart, const std::string& path);
+    static int repJournaling(const std::string &idPart, const std::string& path);
 
 private:
     static std::vector<char> getBytes(RaidOneFile* file, int start, int size);//TODO: quitar, esta de mas
     static int writeBytesInCsvFile(const std::string& path, const std::vector<char>& bytes);//TODO: quitar, esta de mas
     static int writeStringInFile(const std::string& path, const std::string& content);
+    //Comportamiento no definido si journEntry.key no es valido o 0, los key validos estan definidos en Interprete::cmd
+    static std::string journEntryToString(JournEntry* journEntry);
+
 friend int main();//TODO: quitar, solo sirve para debugging
 };
 

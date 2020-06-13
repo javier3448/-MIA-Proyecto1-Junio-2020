@@ -8,6 +8,7 @@
 #include <algorithm>
 #include "diskentity.h"
 #include "consola.h"
+#include "mystringutil.h"
 #include "FileSystem/pointerblock.h"
 #include "FileSystem/foldercontent.h"
 #include "FileSystem/folderblock.h"
@@ -22,9 +23,10 @@ int GraphMaker::mkDotMbr(std::string &outDotCode, const Mbr& mbr)
     outDotCode += "digraph Mbr{\n node[shape = none];\n node[margin = 0];\n";
 
     using std::to_string;
+    using namespace MyStringUtil;
 
     std::string size = to_string(mbr.size);
-    std::string date = dateToString(mbr.fechaCreacion);
+    std::string date = MyStringUtil::dateToString(mbr.fechaCreacion);
     std::string signature = to_string(mbr.diskSignature);
     std::string part0_status = charToString(mbr.primaryPartition[0].status);
     std::string part0_type= charToString(mbr.primaryPartition[0].type);
@@ -175,6 +177,7 @@ int GraphMaker::mkDotMbr(std::string &outDotCode, const Mbr& mbr)
 int GraphMaker::mkDotDisk(std::string &outDotCode, RaidOneFile* file, Mbr* mbr)
 {
     using std::to_string;
+    using namespace MyStringUtil;
 
     float disksize = mbr->size;
     outDotCode += "digraph Disk{\n"
@@ -246,6 +249,7 @@ int GraphMaker::mkDotEbr(std::string &outDotCode, DiskEntity<Ebr> *ebrEntity, co
     outDotCode += "digraph Ebr{\n node[shape = none];\n node[margin = 0];\n";
 
     using std::to_string;
+    using namespace MyStringUtil;
 
     Ebr& ebr = ebrEntity->value;
 
@@ -298,6 +302,7 @@ int GraphMaker::mkDotSb(std::string &outDotCode, DiskEntity<SuperBoot> *sbEntity
     auto& sb = sbEntity->value;
 
     using std::to_string;
+    using namespace MyStringUtil;
 
     std::string filesystemType = to_string(sb.filesystemType);
     std::string inodesCount = to_string(sb.inodesCount);
@@ -525,6 +530,8 @@ bool GraphMaker::mkDotLsImp(std::string &outDotCode, RaidOneFile *file, char dep
 std::string GraphMaker::mkInodeTr(DiskEntity<Inode>* inodeEntity, const std::string &name, const UsersData& usrsData)
 {
     using std::to_string;
+    using namespace MyStringUtil;
+
     Inode& inode = inodeEntity->value;
 
     std::string permissions = intToPermissionsHtmlString(inode.permissions);
@@ -849,6 +856,7 @@ void GraphMaker::splitSubDirNameAndRemainingPath(const std::string& absolutePath
 void GraphMaker::writeTableExtendedPart(std::string &outDotCode, RaidOneFile* file, Partition *extendedPart, float disksize)
 {
     using std::to_string;
+    using namespace MyStringUtil;
 
     int colSpan = 1;
 
@@ -930,31 +938,4 @@ void GraphMaker::writeTableExtendedPart(std::string &outDotCode, RaidOneFile* fi
                    intermediate;
 
     outDotCode += intermediate;
-}
-
-std::string GraphMaker::dateToString(const std::tm& time, const std::string& fmt)
-{
-    std::ostringstream oss;
-    oss << std::put_time(&time, fmt.c_str());
-    return oss.str();
-}
-
-//Retorna un "null" si el caracter es 0
-
-std::string GraphMaker::charToString(char c)
-{
-    if (c == '\0') {
-        return std::string("null");
-    }
-    if(std::isprint(c)){
-        return std::string(1, c);
-    }
-    return std::string("non printable");
-}
-
-std::string GraphMaker::floatToString(float f)
-{
-    std::stringstream stream;
-    stream << std::fixed << std::setprecision(2) << f;
-    return stream.str();
 }

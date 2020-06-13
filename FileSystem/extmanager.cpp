@@ -13,7 +13,7 @@
 std::optional<UserSession> ExtManager::currUserSession = {};
 
 //make file system
-//TODO: MODIFICAR
+
 int ExtManager::mkfs(const std::string& id, char formatType)
 {
     //Conseguir partition:
@@ -69,9 +69,9 @@ int ExtManager::login(const std::string &usr, const std::string &pwd, const std:
 
     RaidOneFile file(mountedPart->path, std::ios::binary | std::ios::in | std::ios::out);
     DiskEntity<SuperBoot> sbEntity(mountedPart->contentStart, &file);
-    if(sbEntity.value.filesystemType == SuperBoot::FS_TYPE_EXT3){
-        JournManager::addLogin(&file, &sbEntity, usr, pwd, id);
-    }
+    //Agregamos entrada al journaling
+    JournManager::addLogin(&file, &sbEntity, "null", usr, pwd, id);
+
     DiskEntity<Inode> usersEntity = getUsers(&file, &sbEntity);
     std::string usersFileContent = fileGetContent(&file, &usersEntity);
     UsersData usersData(usersFileContent);
@@ -96,9 +96,9 @@ int ExtManager::logout()
     }
     RaidOneFile file(currUserSession->part.path, std::ios::binary | std::ios::in | std::ios::out);
     DiskEntity<SuperBoot> sbEntity(currUserSession->part.contentStart, &file);
-    if(sbEntity.value.filesystemType == SuperBoot::FS_TYPE_EXT3){
-        JournManager::addLogout(&file, &sbEntity);
-    }
+    //Agregamos al journaling
+    JournManager::addLogout(&file, &sbEntity, currUserSession->user.name);
+
     currUserSession.reset();
     return 0;
 }
@@ -116,9 +116,9 @@ int ExtManager::mkGrp(const std::string &name)
 
     RaidOneFile file(currUserSession->part.path, std::ios::binary | std::ios::in | std::ios::out);
     DiskEntity<SuperBoot> sbEntity(currUserSession->part.contentStart, &file);
-    if(sbEntity.value.filesystemType == SuperBoot::FS_TYPE_EXT3){
-        JournManager::addMkGrp(&file, &sbEntity, name);
-    }
+    //Agregamos al journaling
+    JournManager::addMkGrp(&file, &sbEntity, currUserSession->user.name, name);
+
     DiskEntity<Inode> usersEntity = getUsers(&file, &sbEntity);
     std::string usersFileContent = fileGetContent(&file, &usersEntity);
     UsersData usersData(usersFileContent);
@@ -154,9 +154,9 @@ int ExtManager::rmGrp(const std::string &name)
 
     RaidOneFile file(currUserSession->part.path, std::ios::binary | std::ios::in | std::ios::out);
     DiskEntity<SuperBoot> sbEntity(currUserSession->part.contentStart, &file);
-    if(sbEntity.value.filesystemType == SuperBoot::FS_TYPE_EXT3){
-        JournManager::addRmGrp(&file, &sbEntity, name);
-    }
+    //Agregamos al journaling
+    JournManager::addRmGrp(&file, &sbEntity, currUserSession->user.name, name);
+
     DiskEntity<Inode> usersEntity = getUsers(&file, &sbEntity);
     std::string usersFileContent = fileGetContent(&file, &usersEntity);
     UsersData usersData(usersFileContent);
@@ -189,9 +189,9 @@ int ExtManager::mkUsr(const std::string &name, const std::string &grp, const std
 
     RaidOneFile file(currUserSession->part.path, std::ios::binary | std::ios::in | std::ios::out);
     DiskEntity<SuperBoot> sbEntity(currUserSession->part.contentStart, &file);
-    if(sbEntity.value.filesystemType == SuperBoot::FS_TYPE_EXT3){
-        JournManager::addMkUsr(&file, &sbEntity, name, grp, pwd);
-    }
+    //Agregamos al journaling
+    JournManager::addMkUsr(&file, &sbEntity, currUserSession->user.name, name, grp, pwd);
+
     DiskEntity<Inode> usersEntity = getUsers(&file, &sbEntity);
     std::string usersFileContent = fileGetContent(&file, &usersEntity);
     UsersData usersData(usersFileContent);
@@ -232,9 +232,9 @@ int ExtManager::rmUsr(const std::string &name)
 
     RaidOneFile file(currUserSession->part.path, std::ios::binary | std::ios::in | std::ios::out);
     DiskEntity<SuperBoot> sbEntity(currUserSession->part.contentStart, &file);
-    if(sbEntity.value.filesystemType == SuperBoot::FS_TYPE_EXT3){
-        JournManager::addRmUsr(&file, &sbEntity, name);
-    }
+    //Agregamos al journaling
+    JournManager::addRmUsr(&file, &sbEntity, currUserSession->user.name, name);
+
     DiskEntity<Inode> usersEntity = getUsers(&file, &sbEntity);
     std::string usersFileContent = fileGetContent(&file, &usersEntity);
     UsersData usersData(usersFileContent);
@@ -257,6 +257,8 @@ int ExtManager::rmUsr(const std::string &name)
 //
 int ExtManager::chmod(const std::string &path, int ugo, bool r, int paramsUgo)
 {
+    //Pusimos un scope aqui para que file muriera antes de hacer recursiveChmod o chmod
+    //Asi evitamos tener dos RaidOneFile al mismo tiempo con el mismo archivo
     {//Chapuz se abre el raidOneFile y se recuperra el sb dos veces
         if(!currUserSession){
             Consola::reportarError("Ningun usuario loggeado");
@@ -264,9 +266,8 @@ int ExtManager::chmod(const std::string &path, int ugo, bool r, int paramsUgo)
         }
         RaidOneFile file(currUserSession->part.path, std::ios::binary | std::ios::in | std::ios::out);
         DiskEntity<SuperBoot> sbEntity(currUserSession->part.contentStart, &file);
-        if(sbEntity.value.filesystemType == SuperBoot::FS_TYPE_EXT3){
-            JournManager::addChmod(&file, &sbEntity, path, paramsUgo, r);
-        }
+        //Agregamos al journaling
+        JournManager::addChmod(&file, &sbEntity, currUserSession->user.name, path, paramsUgo, r);
     }
 
     if(r){
@@ -296,9 +297,9 @@ int ExtManager::mkFile(const std::string &path, bool p, const std::string &conte
 
     RaidOneFile file(currUserSession->part.path, std::ios::binary | std::ios::in | std::ios::out);
     DiskEntity<SuperBoot> sbEntity(currUserSession->part.contentStart, &file);
-    if(sbEntity.value.filesystemType == SuperBoot::FS_TYPE_EXT3){
-        JournManager::addMkFile(&file, &sbEntity, path, p, paramsSize, paramsCont);
-    }
+    //Agregamos al journaling
+    JournManager::addMkFile(&file, &sbEntity, currUserSession->user.name, path, p, paramsSize, paramsCont);
+
     DiskEntity<Inode> usersEntity = getUsers(&file, &sbEntity);
     std::string usersFileContent = fileGetContent(&file, &usersEntity);
     UsersData usersData(usersFileContent);
@@ -360,7 +361,7 @@ int ExtManager::mkFile(const std::string &path, bool p, const std::string &conte
 
     //DEBUG ONLY!!!!. TODO QUITAR!!!!
 //    std::cout << prevBlocks - sbEntity.value.freeBlocksCount << " real!!!" << std::endl;
-//    return 0;
+    return 0;
 }
 
 int ExtManager::cp(const std::string &path, const std::string &dest)
@@ -387,9 +388,9 @@ int ExtManager::cat(const std::string &path)
 
     RaidOneFile file(currUserSession->part.path, std::ios::binary | std::ios::in | std::ios::out);
     DiskEntity<SuperBoot> sbEntity(currUserSession->part.contentStart, &file);
-    if(sbEntity.value.filesystemType == SuperBoot::FS_TYPE_EXT3){
-        JournManager::addCat(&file, &sbEntity, path);
-    }
+    //Agregamos al journaling
+    JournManager::addCat(&file, &sbEntity, currUserSession->user.name, path);
+
     DiskEntity<Inode> usersEntity = getUsers(&file, &sbEntity);
     std::string usersFileContent = fileGetContent(&file, &usersEntity);
     UsersData usersData(usersFileContent);
@@ -456,9 +457,9 @@ int ExtManager::mkDir(const std::string &path, bool p)
 
     RaidOneFile file(currUserSession->part.path, std::ios::binary | std::ios::in | std::ios::out);
     DiskEntity<SuperBoot> sbEntity(currUserSession->part.contentStart, &file);
-    if(sbEntity.value.filesystemType == SuperBoot::FS_TYPE_EXT3){
-        JournManager::addMkDir(&file, &sbEntity, path, p);
-    }
+    //Agregamos al journaling
+    JournManager::addMkDir(&file, &sbEntity, currUserSession->user.name, path, p);
+
     DiskEntity<Inode> usersEntity = getUsers(&file, &sbEntity);
     std::string usersFileContent = fileGetContent(&file, &usersEntity);
     UsersData usersData(usersFileContent);

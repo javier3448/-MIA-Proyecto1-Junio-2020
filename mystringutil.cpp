@@ -58,13 +58,17 @@ bool MyStringUtil::isValidExtPath(const std::string &extPath)
         return false;
     }
 
-    char lastChar = 0;
-    for (auto c : extPath)
+    size_t lastSlashIndex = 0;
+    for (size_t i = 1; i < extPath.length(); i++)
     {
-        if(c == '/' &&  lastChar == '/'){
-            return false;
+        if(extPath[i] == '/'){
+            if(lastSlashIndex == i - 1){
+                //No es extpath porque tiene dos '/' seguidos
+                return false;
+            }
+            lastSlashIndex = i;
         }
-        lastChar = c;
+        //Aqui podriamos revisar caracteres no validos y todo eso
     }
     return true;
 }
@@ -139,3 +143,31 @@ std::string MyStringUtil::intToHexString(int n)
     stream << std::hex << n;
     return stream.str();
 }
+
+std::string MyStringUtil::dateToString(const std::tm& time, const std::string& fmt)
+{
+    std::ostringstream oss;
+    oss << std::put_time(&time, fmt.c_str());
+    return oss.str();
+}
+
+
+//Retorna un "null" si el caracter es 0
+std::string MyStringUtil::charToString(char c)
+{
+    if (c == '\0') {
+        return std::string("null");
+    }
+    if(std::isprint(c)){
+        return std::string(1, c);
+    }
+    return std::string("non printable");
+}
+
+std::string MyStringUtil::floatToString(float f)
+{
+    std::stringstream stream;
+    stream << std::fixed << std::setprecision(2) << f;
+    return stream.str();
+}
+

@@ -2,6 +2,7 @@
 #define MYSTRINGUTIL_H
 
 #include <string>
+#include <ctime>
 #include <vector>
 #include <optional>
 
@@ -19,6 +20,9 @@ namespace  MyStringUtil
     std::optional<std::string> readFile(const std::string& path);
     std::string buildDigitString(int size);
     std::string intToHexString(int n);
+    std::string dateToString(const std::tm& time, const std::string& fmt = "%d-%m-%Y %H:%M:%S");
+    std::string charToString(char c);
+    std::string floatToString(float f);
 };
 
 #endif // MYSTRINGUTIL_H

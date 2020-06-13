@@ -268,6 +268,10 @@ int Interprete::rep(ExtParams* params)
         Consola::printCommandLine("inode");
         return Reportes::repInode(id, path);
     }
+    if(repName == "journaling"){
+        Consola::printCommandLine("journaling");
+        return Reportes::repJournaling(id, path);
+    }
     if(repName == "block"){
         Consola::printCommandLine("block");
         return Reportes::repBlock(id, path);
