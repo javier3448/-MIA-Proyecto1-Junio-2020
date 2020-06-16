@@ -616,7 +616,7 @@ int Interprete::find(ExtParams* params)
                                        pf::PATH | pf::NAME,
                                        0);
     if(msg.length()){
-        msg = "Parametros no validos para comando mkfile: " + msg;
+        msg = "Parametros no validos para comando find: " + msg;
         Consola::reportarError(msg);
         return -1;
     }

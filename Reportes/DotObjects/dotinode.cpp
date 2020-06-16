@@ -25,6 +25,7 @@ void DotInode::initDotStrings()
     std::string usuario = to_string(inode.usrId);
     std::string grupo = to_string(inode.grpId);
     std::string ugo = MyStringUtil::intToHexString(inode.permissions);
+    std::string size = to_string(inode.size);
 
     dotNodeDeclaration = dotName + "[\n"
                                    "        label = <\n"
@@ -45,6 +46,10 @@ void DotInode::initDotStrings()
                                    "                <tr>\n"
                                    "                    <td bgcolor = \"lightcyan\">UGO</td>\n"
                                    "                    <td bgcolor = \"cyan2\">" + ugo + "</td>\n"
+                                   "                </tr>\n"
+                                   "                <tr>\n"
+                                   "                    <td bgcolor = \"lightcyan\">size</td>\n"
+                                   "                    <td bgcolor = \"cyan2\">" + size + "</td>\n"
                                    "                </tr>\n";
     int i;
     for(i = 0; i < Inode::DIRECT_BLK_SIZE; i++){

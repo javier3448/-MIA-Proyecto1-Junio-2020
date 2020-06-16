@@ -140,7 +140,7 @@ std::string MyStringUtil::buildDigitString(int size)
 std::string MyStringUtil::intToHexString(int n)
 {
     std::stringstream stream;
-    stream << std::hex << n;
+    stream << std::hex << std::setfill('0') << std::setw(3) << n;
     return stream.str();
 }
 

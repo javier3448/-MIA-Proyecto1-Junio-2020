@@ -70,8 +70,10 @@ bool Inode::isUsrOwner(int usrId){
 
 bool Inode::canUsrWrite(int usrId, int usrGrpId)
 {
+    if(usrId == 1){
+        return true;
+    }
     //Determinar si es owner, parte del group o other
-
     if(isUsrOwner(usrId)){
         if(getOwnerPermissions() & RWX_WRITE){
             return true;
@@ -90,6 +92,10 @@ bool Inode::canUsrWrite(int usrId, int usrGrpId)
 
 bool Inode::canUsrRead(int usrId, int usrGrpId)
 {
+    if(usrId == 1){
+        return true;
+    }
+
     if(isUsrOwner(usrId)){
         if(getOwnerPermissions() & RWX_READ){
             return true;
@@ -108,6 +114,10 @@ bool Inode::canUsrRead(int usrId, int usrGrpId)
 
 bool Inode::canUsrExecute(int usrId, int usrGrpId)
 {
+    if(usrId == 1){
+        return true;
+    }
+
     if(isUsrOwner(usrId)){
         if(getOwnerPermissions() & RWX_EXECUTE){
             return true;

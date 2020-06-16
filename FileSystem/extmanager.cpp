@@ -257,30 +257,114 @@ int ExtManager::rmUsr(const std::string &name)
 //
 int ExtManager::chmod(const std::string &path, int ugo, bool r, int paramsUgo)
 {
-    //Pusimos un scope aqui para que file muriera antes de hacer recursiveChmod o chmod
-    //Asi evitamos tener dos RaidOneFile al mismo tiempo con el mismo archivo
-    {//Chapuz se abre el raidOneFile y se recuperra el sb dos veces
-        if(!currUserSession){
-            Consola::reportarError("Ningun usuario loggeado");
-            return -1;
-        }
-        RaidOneFile file(currUserSession->part.path, std::ios::binary | std::ios::in | std::ios::out);
-        DiskEntity<SuperBoot> sbEntity(currUserSession->part.contentStart, &file);
-        //Agregamos al journaling
-        JournManager::addChmod(&file, &sbEntity, currUserSession->user.name, path, paramsUgo, r);
+    if(!currUserSession){
+        Consola::reportarError("No se a loggeado ningun usuario");
+        return -1;
+    }
+
+    RaidOneFile file(currUserSession->part.path, std::ios::binary | std::ios::in | std::ios::out);
+    DiskEntity<SuperBoot> sbEntity(currUserSession->part.contentStart, &file);
+    //Agregamos al journaling
+    JournManager::addChmod(&file, &sbEntity, currUserSession->user.name, path, paramsUgo, r);
+
+    DiskEntity<Inode> usersEntity = getUsers(&file, &sbEntity);
+    std::string usersFileContent = fileGetContent(&file, &usersEntity);
+    UsersData usersData(usersFileContent);
+
+    DiskEntity<Inode> rootEntity = getRoot(&file, &sbEntity);
+
+    std::string relativePath;
+    MyStringUtil::removeSlash(path, relativePath);//Crea el path relativo al root (i.e. quita el primer slash)
+
+    auto[closestInode, remainingPath] = folderGetClosestInode(&file, &rootEntity, relativePath);
+
+    if(remainingPath.length() > 0){
+        Consola::reportarError("No existe la direccion: <" + path + ">");
+        return -1;
+    }
+
+    int usrId = currUserSession->user.id;
+
+    if(!closestInode.value.isUsrOwner(usrId) &&
+        !currUserSession->isRoot()){
+        Consola::reportarError("El usuario: " + currUserSession->user.name + " no es propietario de: "
+                                                                             "<" + path + ">");
+        return -1;
     }
 
     if(r){
-        return recursiveChmod(path, ugo);
+        if(recursiveChmod(&file, &closestInode, usrId, ugo) == -1){
+            Consola::reportarError("No se pudo aplicar chmod a todos los archivos dentro de " + path +
+                                   "\n el usuario " + currUserSession->user.name + " no es propietarios");
+            return -1;
+        }
+        return 0;
     }
     else{
-        return chmod(path, ugo);
+        closestInode.value.permissions = ugo;
+        closestInode.value.updateModificationTime();
+        closestInode.updateDiskValue(&file);
+        return 0;
     }
 }
 
 int ExtManager::chown(const std::string &path, bool r, const std::string &usr)
 {
-    return -1;
+    if(!currUserSession){
+        Consola::reportarError("No se a loggeado ningun usuario");
+        return -1;
+    }
+
+    RaidOneFile file(currUserSession->part.path, std::ios::binary | std::ios::in | std::ios::out);
+    DiskEntity<SuperBoot> sbEntity(currUserSession->part.contentStart, &file);
+    //Agregamos al journaling
+    JournManager::addChown(&file, &sbEntity, currUserSession->user.name, path, r, usr);
+
+    DiskEntity<Inode> usersEntity = getUsers(&file, &sbEntity);
+    std::string usersFileContent = fileGetContent(&file, &usersEntity);
+    UsersData usersData(usersFileContent);
+
+    DiskEntity<Inode> rootEntity = getRoot(&file, &sbEntity);
+
+    int newUsrId = usersData.getUserId(usr);
+    if(newUsrId == -1){
+        Consola::reportarError("No existe un usuario con el nombre: " + usr);
+        return -1;
+    }
+
+    std::string relativePath;
+    MyStringUtil::removeSlash(path, relativePath);//Crea el path relativo al root (i.e. quita el primer slash)
+
+    auto[closestInode, remainingPath] = folderGetClosestInode(&file, &rootEntity, relativePath);
+
+    if(remainingPath.length() > 0){
+        Consola::reportarError("No existe la direccion: <" + path + ">");
+        return -1;
+    }
+
+    int usrId = currUserSession->user.id;
+
+    if(!closestInode.value.isUsrOwner(usrId) &&
+        !currUserSession->isRoot()){
+        Consola::reportarError("El usuario: " + currUserSession->user.name + " no es propietario de: "
+                                                                             "<" + path + ">");
+        return -1;
+    }
+
+    if(r){
+        if(recursiveChown(&file, &closestInode, usrId, newUsrId) == -1){
+            Consola::reportarError("No se pudo aplicar chmod a todos los archivos dentro de " + path +
+                                   "\n el usuario " + currUserSession->user.name + " no es propietarios");
+            return -1;
+        }
+        return 0;
+    }
+    else{
+        closestInode.value.usrId = newUsrId;
+        closestInode.value.updateModificationTime();
+        closestInode.updateDiskValue(&file);
+        return 0;
+    }
 }
 
 int ExtManager::chgrp(const std::string &usr, const std::string &grp)
@@ -304,12 +388,6 @@ int ExtManager::mkFile(const std::string &path, bool p, const std::string &conte
     std::string usersFileContent = fileGetContent(&file, &usersEntity);
     UsersData usersData(usersFileContent);
 
-    //DEBUG ONLY
-    //TODO: QUITAR!!!!
-//    int neededBlocks = ExtUtility::neededBlocks(content.length());
-//    std::cout << neededBlocks << "AQUI!!!" << std::endl;
-//    int prevBlocks = sbEntity.value.freeBlocksCount;
-
     DiskEntity<Inode> rootEntity = getRoot(&file, &sbEntity);
 
     std::string relativePath;
@@ -321,7 +399,10 @@ int ExtManager::mkFile(const std::string &path, bool p, const std::string &conte
     auto[closestInode, remainingPath] = folderGetClosestInode(&file, &rootEntity, folderPath);
 
     if(remainingPath.length() != 0 && !p){
-        Consola::reportarError("No existe el directorio: <" + path + ">");
+        std::string folderPath;
+        std::string folderName;
+        MyStringUtil::splitFolderPathAndFileName("/" + relativePath, folderPath, folderName);
+        Consola::reportarError("No existe el directorio: <" + folderPath + ">");
         return -1;
     }
 
@@ -344,11 +425,11 @@ int ExtManager::mkFile(const std::string &path, bool p, const std::string &conte
     int grpId= usersData.getGroupId(currUserSession->user.groupName);
     int permissions = 0x664;
 
-    if(!closestInode.value.canUsrWrite(usrId, grpId) &&
-        !currUserSession->isRoot()){
-        std::string wrongFilePath = path.substr(0, path.length() - remainingPath.length());
+    if(!closestInode.value.canUsrWrite(usrId, grpId)){
+        //wrongPath seria el path de el lastInode
+        std::string wrongFilePath = folderPath.substr(0, folderPath.length() - remainingPath.length());
         Consola::reportarError("El usuario: " + currUserSession->user.name + " no tiene permisos de escritura en: "
-                                                                             "<" + wrongFilePath + ">");
+                                                                             "</" + wrongFilePath + ">");
         return -1;
     }
 
@@ -359,8 +440,6 @@ int ExtManager::mkFile(const std::string &path, bool p, const std::string &conte
 
     sbEntity.updateDiskValue(&file);
 
-    //DEBUG ONLY!!!!. TODO QUITAR!!!!
-//    std::cout << prevBlocks - sbEntity.value.freeBlocksCount << " real!!!" << std::endl;
     return 0;
 }
 
@@ -376,7 +455,57 @@ int ExtManager::mv(const std::string &path, const std::string &dest)
 
 int ExtManager::find(const std::string &path, const std::string &name)
 {
-    return -1;
+    if(!currUserSession){
+        Consola::reportarError("No se a loggeado ningun usuario");
+        return -1;
+    }
+
+    RaidOneFile file(currUserSession->part.path, std::ios::binary | std::ios::in | std::ios::out);
+    DiskEntity<SuperBoot> sbEntity(currUserSession->part.contentStart, &file);
+    //Agregamos al journaling
+    JournManager::addCat(&file, &sbEntity, currUserSession->user.name, path);
+
+    DiskEntity<Inode> usersEntity = getUsers(&file, &sbEntity);
+    std::string usersFileContent = fileGetContent(&file, &usersEntity);
+    UsersData usersData(usersFileContent);
+
+    DiskEntity<Inode> rootEntity = getRoot(&file, &sbEntity);
+
+    std::string relativePath;
+    MyStringUtil::removeSlash(path, relativePath);//Crea el path relativo al root (i.e. quita el primer slash)
+
+    auto[closestInode, remaindingPath] = folderGetClosestInode(&file, &rootEntity, relativePath);
+
+    if(remaindingPath.length() != 0){
+        Consola::reportarError("No existe el archivo: <" + path + ">");
+        return -1;
+    }
+
+    if(!closestInode.value.isFolder()){
+        Consola::reportarError("El path: </" + path + "> es un archivo, no un directorio");
+        return -1;
+    }
+
+    int usrId = currUserSession->user.id;
+    int grpId= usersData.getGroupId(currUserSession->user.groupName);
+
+    if(!closestInode.value.canUsrRead(usrId, grpId)){
+        Consola::reportarError("El usuario: " + currUserSession->user.name + " no tiene permisos de lectura en: "
+                                                                             "<" + path + ">");
+        return -1;
+    }
+
+    std::string inodeName = path.substr(path.find_last_of('/') + 1);
+
+    std::string buffer("");
+
+    //Bad practice to use a reference but I cant think of another way to use the
+    //same string in the whole recursion
+    findImp(&file, inodeName, &closestInode, buffer, name, 0);
+
+    Consola::printLine(buffer);
+
+    return 0;
 }
 
 int ExtManager::cat(const std::string &path)
@@ -416,8 +545,7 @@ int ExtManager::cat(const std::string &path)
     int usrId = currUserSession->user.id;
     int grpId= usersData.getGroupId(currUserSession->user.groupName);
 
-    if(!closestInode.value.canUsrRead(usrId, grpId) &&
-        !currUserSession->isRoot()){
+    if(!closestInode.value.canUsrRead(usrId, grpId)){
         Consola::reportarError("El usuario: " + currUserSession->user.name + " no tiene permisos de lectura en: "
                                                                              "<" + path + ">");
         return -1;
@@ -480,7 +608,7 @@ int ExtManager::mkDir(const std::string &path, bool p)
         && !p){
         std::string folderPath;
         std::string folderName;
-        MyStringUtil::splitFolderPathAndFileName(relativePath, folderPath, folderName);
+        MyStringUtil::splitFolderPathAndFileName("/" + relativePath, folderPath, folderName);
         Consola::reportarError("No existe el directorio: </" + folderPath + ">");
         return -1;
     }
@@ -495,11 +623,11 @@ int ExtManager::mkDir(const std::string &path, bool p)
     int grpId= usersData.getGroupId(currUserSession->user.groupName);
     int permissions = 0x664;
 
-    if(!closestInode.value.canUsrWrite(usrId, grpId) &&
-        !currUserSession->isRoot()){
-        std::string wrongFilePath = path.substr(0, path.length() - remainingPath.length());
+    if(!closestInode.value.canUsrWrite(usrId, grpId)){
+        //TODO: revisar este error
+        std::string wrongFilePath = relativePath.substr(0, relativePath.length() - remainingPath.length());
         Consola::reportarError("El usuario: " + currUserSession->user.name + " no tiene permisos de escritura en: "
-                                                                             "<" + wrongFilePath + ">");
+                                                                             "</" + wrongFilePath + ">");
         return -1;
     }
 
@@ -548,52 +676,53 @@ DiskEntity<Inode> ExtManager::getUsers(RaidOneFile *file, DiskEntity<SuperBoot> 
     return DiskEntity<Inode>(sb.inodeStart + (int)sizeof(Inode), file);//El segundo inodo siempre sera el users.txt
 }
 
-int ExtManager::chmod(const std::string &path, int ugo)
+
+int ExtManager::recursiveChmod(RaidOneFile *file, DiskEntity<Inode> *inodeEntity, int usrId, int ugo)
 {
-    if(!currUserSession){
-        Consola::reportarError("No se a loggeado ningun usuario");
+    auto& inode = inodeEntity->value;
+    //usrId != 1. is the same as saying isUsrNotRoot
+    if(inode.isUsrOwner(usrId) &&
+        usrId != 1){
         return -1;
     }
+    int result = 0;
+    inode.permissions = ugo;
+    inode.updateModificationTime();
+    inodeEntity->updateDiskValue(file);
 
-    RaidOneFile file(currUserSession->part.path, std::ios::binary | std::ios::in | std::ios::out);
-    DiskEntity<SuperBoot> sbEntity(currUserSession->part.contentStart, &file);
-    //El comando que diferencia entre chmod recursivo y chmod normal ya metio en el journaling el comando
-    DiskEntity<Inode> usersEntity = getUsers(&file, &sbEntity);
-    std::string usersFileContent = fileGetContent(&file, &usersEntity);
-    UsersData usersData(usersFileContent);
-
-    DiskEntity<Inode> rootEntity = getRoot(&file, &sbEntity);
-
-    std::string relativePath;
-    MyStringUtil::removeSlash(path, relativePath);//Crea el path relativo al root (i.e. quita el primer slash)
-
-    auto[closestInode, remainingPath] = folderGetClosestInode(&file, &rootEntity, relativePath);
-
-    if(remainingPath.length() > 0){
-        Consola::reportarError("No existe la direccion: <" + path + ">");
-        return -1;
+    if(inode.isFolder()){
+        auto subInodes = folderGetSubInodes(file, inodeEntity);
+        for (auto subInodeEntity : subInodes) {
+            if(recursiveChmod(file, &subInodeEntity, usrId, ugo) == -1){
+                result = -1;
+            }
+        }
     }
-
-    int usrId = currUserSession->user.id;
-
-    if(!closestInode.value.isUsrOwner(usrId) &&
-        !currUserSession->isRoot()){
-        Consola::reportarError("El usuario: " + currUserSession->user.name + " no es propietario de: "
-                                                                             "<" + path + ">");
-        return -1;
-    }
-
-    closestInode.value.permissions = ugo;
-    closestInode.updateDiskValue(&file);
-
-    return 0;
+    return result;
 }
 
-//TODO: MODIFICAR
-int ExtManager::recursiveChmod(const std::string &path, int ugo)//TODO:implementar este metodo es de hacer un metodo parecdio a folderGetClosetInode pero vamos cambiando los permisos y reportando si no se pudo cambiar un permiso
+int ExtManager::recursiveChown(RaidOneFile *file, DiskEntity<Inode> *inodeEntity, int usrId, int newUsrId)
 {
-    Consola::reportarError("Recursivo chmod no soportado todavia");
-    return -1;
+    auto& inode = inodeEntity->value;
+    //usrId != 1. is the same as saying isUsrNotRoot
+    if(inode.isUsrOwner(usrId) &&
+        usrId != 1){
+        return -1;
+    }
+    int result = 0;
+    inode.usrId = newUsrId;
+    inode.updateModificationTime();
+    inodeEntity->updateDiskValue(file);
+
+    if(inode.isFolder()){
+        auto subInodes = folderGetSubInodes(file, inodeEntity);
+        for (auto subInodeEntity : subInodes) {
+            if(recursiveChown(file, &subInodeEntity, usrId, newUsrId) == -1){
+                result = -1;
+            }
+        }
+    }
+    return result;
 }
 
 std::string ExtManager::fileGetContent(RaidOneFile *file, DiskEntity<Inode> *fileEntity)
@@ -1033,7 +1162,7 @@ std::optional<DiskEntity<Inode>> ExtManager::folderGetSubInode(RaidOneFile *file
             return subInode;
         }
     }
-    for(; i < Inode::DOUBLE_INDIRECT_BLK_BEG + Inode::DOUBLE_INDIRECT_BLK_SIZE > 0; i++){
+    for(; i < Inode::DOUBLE_INDIRECT_BLK_BEG + Inode::DOUBLE_INDIRECT_BLK_SIZE; i++){
         if(folderEntity->value.blocks[i] == -1){
             return {};
         }
@@ -1042,7 +1171,7 @@ std::optional<DiskEntity<Inode>> ExtManager::folderGetSubInode(RaidOneFile *file
             return subInode;
         }
     }
-    for(; i < Inode::TRIPLE_INDIRECT_BLK_BEG + Inode::TRIPLE_INDIRECT_BLK_SIZE > 0; i++){
+    for(; i < Inode::TRIPLE_INDIRECT_BLK_BEG + Inode::TRIPLE_INDIRECT_BLK_SIZE; i++){
         if(folderEntity->value.blocks[i] == -1){
             return {};
         }
@@ -1053,6 +1182,110 @@ std::optional<DiskEntity<Inode>> ExtManager::folderGetSubInode(RaidOneFile *file
     }
 
     return {}; //Despues de recorrer todos los punteros, si todavia tiene null significa que esta lleno y ninguno de sus subInodos
+}
+
+std::vector<std::pair<std::string, DiskEntity<Inode>>> ExtManager::folderGetSubNamedInodes(RaidOneFile *file, DiskEntity<Inode> *folderEntity)
+{
+    folderEntity->value.updateAccessTime();
+
+    //Tipo demasiado largo y complejo. Hay que ver como podemos evitar estos tipos
+    std::vector<std::pair<std::string, DiskEntity<Inode>>> subInodes;
+    subInodes.reserve(folderEntity->value.size);
+    int subInodesCount = folderEntity->value.size;
+    int i = 0;
+    for (i = 0; i < Inode::DIRECT_BLK_BEG + Inode::DIRECT_BLK_SIZE; i++) {
+        if(subInodesCount <= 0){
+            return subInodes;
+        }
+        if(folderEntity->value.blocks[i] == -1){
+            continue;
+        }
+        folderGetSubNamedInodesImp(file, subInodes, subInodesCount, 0, folderEntity->value.blocks[i]);
+    }
+    for(; i < Inode::SIMPLE_INDIRECT_BLK_BEG + Inode::SIMPLE_INDIRECT_BLK_SIZE; i++){
+        if(subInodesCount <= 0){
+            return subInodes;
+        }
+        if(folderEntity->value.blocks[i] == -1){
+            continue;
+        }
+        folderGetSubNamedInodesImp(file, subInodes, subInodesCount, 1, folderEntity->value.blocks[i]);
+    }
+    for(; i < Inode::DOUBLE_INDIRECT_BLK_BEG + Inode::DOUBLE_INDIRECT_BLK_SIZE; i++){
+        if(subInodesCount <= 0){
+            return subInodes;
+        }
+        if(folderEntity->value.blocks[i] == -1){
+            continue;
+        }
+        folderGetSubNamedInodesImp(file, subInodes, subInodesCount, 2, folderEntity->value.blocks[i]);
+    }
+    for(; i < Inode::TRIPLE_INDIRECT_BLK_BEG + Inode::TRIPLE_INDIRECT_BLK_SIZE; i++){
+        if(subInodesCount <= 0){
+            return subInodes;
+        }
+        if(folderEntity->value.blocks[i] == -1){
+            continue;
+        }
+        folderGetSubNamedInodesImp(file, subInodes, subInodesCount, 3, folderEntity->value.blocks[i]);
+    }
+
+    //en otras palabras, size esta correcto o alguno de los links entre bloques esta super corroto
+    //Todo esta disennado para que no de este error nunca!
+    //Es posible que no actualizaramos el inode.size cuando debimos
+    throw std::length_error("Se termino de recorrer el inodo sin conseguir todos sus subInodos");
+}
+
+std::vector<DiskEntity<Inode> > ExtManager::folderGetSubInodes(RaidOneFile *file, DiskEntity<Inode> *folderEntity)
+{
+    folderEntity->value.updateAccessTime();
+
+    //Tipo demasiado largo y complejo. Hay que ver como podemos evitar estos tipos
+    std::vector<DiskEntity<Inode>> subInodes;
+    subInodes.reserve(folderEntity->value.size);
+    int subInodesCount = folderEntity->value.size;
+    int i = 0;
+    for (i = 0; i < Inode::DIRECT_BLK_BEG + Inode::DIRECT_BLK_SIZE; i++) {
+        if(subInodesCount <= 0){
+            return subInodes;
+        }
+        if(folderEntity->value.blocks[i] == -1){
+            continue;
+        }
+        folderGetSubInodesImp(file, subInodes, subInodesCount, 0, folderEntity->value.blocks[i]);
+    }
+    for(; i < Inode::SIMPLE_INDIRECT_BLK_BEG + Inode::SIMPLE_INDIRECT_BLK_SIZE; i++){
+        if(subInodesCount <= 0){
+            return subInodes;
+        }
+        if(folderEntity->value.blocks[i] == -1){
+            continue;
+        }
+        folderGetSubInodesImp(file, subInodes, subInodesCount, 1, folderEntity->value.blocks[i]);
+    }
+    for(; i < Inode::DOUBLE_INDIRECT_BLK_BEG + Inode::DOUBLE_INDIRECT_BLK_SIZE; i++){
+        if(subInodesCount <= 0){
+            return subInodes;
+        }
+        if(folderEntity->value.blocks[i] == -1){
+            continue;
+        }
+        folderGetSubInodesImp(file, subInodes, subInodesCount, 2, folderEntity->value.blocks[i]);
+    }
+    for(; i < Inode::TRIPLE_INDIRECT_BLK_BEG + Inode::TRIPLE_INDIRECT_BLK_SIZE; i++){
+        if(subInodesCount <= 0){
+            return subInodes;
+        }
+        if(folderEntity->value.blocks[i] == -1){
+            continue;
+        }
+        folderGetSubInodesImp(file, subInodes, subInodesCount, 3, folderEntity->value.blocks[i]);
+    }
+
+    //en otras palabras, size esta correcto o alguno de los links entre bloques esta super corroto
+    //Todo esta disennado para que no de este error nunca!
+    //Es posible que no actualizaramos el inode.size cuando debimos
+    throw std::length_error("Se termino de recorrer el inodo sin conseguir todos sus subInodos");
 }
 
 std::optional<DiskEntity<Inode>> ExtManager::folderGetSubInodeImp(RaidOneFile *file, const std::string& name, char depth, int address)
@@ -1085,6 +1318,72 @@ std::optional<DiskEntity<Inode>> ExtManager::folderGetSubInodeImp(RaidOneFile *f
     return {};
 }
 
+void ExtManager::folderGetSubNamedInodesImp(RaidOneFile *file, std::vector<std::pair<std::string, DiskEntity<Inode>>> &container, int &subInodeCount, char depth, int address)
+{
+    if(depth == 0){
+        DiskEntity<FolderBlock> folderBlock(address, file);
+        auto& folderContents = folderBlock.value.contents;
+        for (int i = 0; i < FolderBlock::CONTENTS_SIZE; i++) {
+            if(subInodeCount <= 0){
+                return;
+            }
+            if(folderContents[i].isNull()){
+                continue;
+            }
+            //bad performance. Deveriamos buscar como hacer emplace_back con un std::pair
+            std::string subInodeName(folderContents[i].name);
+            DiskEntity<Inode> subInode(folderContents[i].inodePtr, file);
+            //WHY IS THE std::pair constructor taking non consts references?!
+            container.push_back(std::pair<std::string, DiskEntity<Inode>>(subInodeName, subInode));
+            subInodeCount--;
+        }
+    }
+    else {//Significa que depth es 1 o mas
+        DiskEntity<PointerBlock> pointerBlock(address, file);
+        auto& pointers = pointerBlock.value.pointers;
+        for (int i = 0; i < PointerBlock::POINTERS_SIZE; i++) {
+            if(subInodeCount <= 0){
+                return;
+            }
+            if(pointers[i] == -1){
+                continue;
+            }
+            folderGetSubNamedInodesImp(file, container, subInodeCount, depth - 1, pointers[i]);
+        }
+    }
+}
+
+void ExtManager::folderGetSubInodesImp(RaidOneFile *file, std::vector<DiskEntity<Inode> > &container, int &subInodeCount, char depth, int address)
+{
+    if(depth == 0){
+        DiskEntity<FolderBlock> folderBlock(address, file);
+        auto& folderContents = folderBlock.value.contents;
+        for (int i = 0; i < FolderBlock::CONTENTS_SIZE; i++) {
+            if(subInodeCount <= 0){
+                return;
+            }
+            if(folderContents[i].isNull()){
+                continue;
+            }
+            container.emplace_back(folderContents[i].inodePtr, file);
+            subInodeCount--;
+        }
+    }
+    else {//Significa que depth es 1 o mas
+        DiskEntity<PointerBlock> pointerBlock(address, file);
+        auto& pointers = pointerBlock.value.pointers;
+        for (int i = 0; i < PointerBlock::POINTERS_SIZE; i++) {
+            if(subInodeCount <= 0){
+                return;
+            }
+            if(pointers[i] == -1){
+                continue;
+            }
+            folderGetSubInodesImp(file, container, subInodeCount, depth - 1, pointers[i]);
+        }
+    }
+}
+
 int ExtManager::createRootAndUsrsTxt(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity)
 {
     //hacer el Root:
@@ -1096,6 +1395,7 @@ int ExtManager::createRootAndUsrsTxt(RaidOneFile *file, DiskEntity<SuperBoot> *s
     DiskEntity<FolderBlock> rootFolderBlockEntity(rootFolderBlockStart, FolderBlock());
     FolderBlock& rootFolderBlock = rootFolderBlockEntity.value;
     rootInode.blocks[0] = rootFolderBlockStart;
+    rootInode.size = 1;
 
     //hacer el users.txt
     int usersInodeStart = sbEntity->value.reserveInode(file);
@@ -1173,7 +1473,6 @@ bool ExtManager::folderMkfolderRecursivelyImp(RaidOneFile *file, DiskEntity<Supe
 std::optional<DiskEntity<Inode>> ExtManager::folderMkSubfolder(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, DiskEntity<Inode> *folderEntity, int usrId, int grpId, int permissions, const std::string &name)
 {
     SuperBoot& sb = sbEntity->value;
-    folderEntity->value.updateModificationTime();
 
     std::optional<DiskEntity<Inode>> subInode;
     int i = 0;
@@ -1185,14 +1484,17 @@ std::optional<DiskEntity<Inode>> ExtManager::folderMkSubfolder(RaidOneFile *file
             int address = sb.reserveBlock(file);
             if(address == -1){
                 folderEntity->updateDiskValue(file);
-                return -1;//ya no hay espacio en el bitmap de inodos
+                return {};//ya no hay espacio en el bitmap de inodos
             }
             folderEntity->value.blocks[i] = address;
             subInode = folderMkSubfolderImp(file, sbEntity, usrId, grpId, permissions, name, 0, true, folderEntity->value.blocks[i]);
             folderEntity->updateDiskValue(file);
         }
         if(subInode){
-
+            //Updates size and modification time
+            folderEntity->value.updateModificationTime();
+            folderEntity->value.size++;
+            folderEntity->updateDiskValue(file);
             return subInode;
         }
     }
@@ -1204,7 +1506,7 @@ std::optional<DiskEntity<Inode>> ExtManager::folderMkSubfolder(RaidOneFile *file
             int address = sb.reserveBlock(file);
             if(address == -1){
                 folderEntity->updateDiskValue(file);
-                return -1;//ya no hay espacio en el bitmap de inodos
+                return {};//ya no hay espacio en el bitmap de inodos
             }
             folderEntity->value.blocks[i] = address;
 
@@ -1212,10 +1514,14 @@ std::optional<DiskEntity<Inode>> ExtManager::folderMkSubfolder(RaidOneFile *file
             folderEntity->updateDiskValue(file);
         }
         if(subInode){
+            //Updates size and modification time
+            folderEntity->value.updateModificationTime();
+            folderEntity->value.size++;
+            folderEntity->updateDiskValue(file);
             return subInode;
         }
     }
-    for(; i < Inode::DOUBLE_INDIRECT_BLK_BEG + Inode::DOUBLE_INDIRECT_BLK_SIZE > 0; i++){
+    for(; i < Inode::DOUBLE_INDIRECT_BLK_BEG + Inode::DOUBLE_INDIRECT_BLK_SIZE; i++){
         if(folderEntity->value.blocks[i] != -1){
             subInode = folderMkSubfolderImp(file, sbEntity, usrId, grpId, permissions, name, 2, false, folderEntity->value.blocks[i]);
         }
@@ -1223,17 +1529,21 @@ std::optional<DiskEntity<Inode>> ExtManager::folderMkSubfolder(RaidOneFile *file
             int address = sb.reserveBlock(file);
             if(address == -1){
                 folderEntity->updateDiskValue(file);
-                return -1;//ya no hay espacio en el bitmap de inodos
+                return {};//ya no hay espacio en el bitmap de inodos
             }
             folderEntity->value.blocks[i] = address;
             subInode = folderMkSubfolderImp(file, sbEntity, usrId, grpId, permissions, name, 2, true, folderEntity->value.blocks[i]);
             folderEntity->updateDiskValue(file);
         }
         if(subInode){
+            //Updates size and modification time
+            folderEntity->value.updateModificationTime();
+            folderEntity->value.size++;
+            folderEntity->updateDiskValue(file);
             return subInode;
         }
     }
-    for(; i < Inode::TRIPLE_INDIRECT_BLK_BEG + Inode::TRIPLE_INDIRECT_BLK_SIZE > 0; i++){
+    for(; i < Inode::TRIPLE_INDIRECT_BLK_BEG + Inode::TRIPLE_INDIRECT_BLK_SIZE; i++){
         if(folderEntity->value.blocks[i] != -1){
             subInode = folderMkSubfolderImp(file, sbEntity, usrId, grpId, permissions, name, 3, false, folderEntity->value.blocks[i]);
         }
@@ -1241,13 +1551,17 @@ std::optional<DiskEntity<Inode>> ExtManager::folderMkSubfolder(RaidOneFile *file
             int address = sb.reserveBlock(file);
             if(address == -1){
                 folderEntity->updateDiskValue(file);
-                return -1;//ya no hay espacio en el bitmap de inodos
+                return {}; //ya no hay espacio en el bitmap de inodos
             }
             folderEntity->value.blocks[i] = address;
             subInode = folderMkSubfolderImp(file, sbEntity, usrId, grpId, permissions, name, 3, true, folderEntity->value.blocks[i]);
             folderEntity->updateDiskValue(file);
         }
         if(subInode){
+            //Updates size and modification time
+            folderEntity->value.updateModificationTime();
+            folderEntity->value.size++;
+            folderEntity->updateDiskValue(file);
             return subInode;
         }
     }
@@ -1302,7 +1616,7 @@ std::optional<DiskEntity<Inode>> ExtManager::folderMkSubfolderImp(RaidOneFile *f
                 int address = sb.reserveBlock(file);
                 if(address == -1){
                     pointerBlock.updateDiskValue(file);
-                    return -1;//ya no hay espacio en el bitmap de inodos
+                    return {};//ya no hay espacio en el bitmap de inodos
                 }
                 pointers[i] = address;
                 subInode = folderMkSubfolderImp(file, sbEntity, usrId, grpId, permissions, name, depth - 1, true, pointers[i]);
@@ -1331,13 +1645,16 @@ std::optional<DiskEntity<Inode>> ExtManager::folderMkSubfile(RaidOneFile *file, 
             int address = sb.reserveBlock(file);
             if(address == -1){
                 folderEntity->updateDiskValue(file);
-                return -1;//ya no hay espacio en el bitmap de inodos
+                return {};//ya no hay espacio en el bitmap de inodos
             }
             folderEntity->value.blocks[i] = address;
             subInode = folderMkSubfileImp(file, sbEntity, usrId, grpId, permissions, name, content, 0, true, folderEntity->value.blocks[i]);
             folderEntity->updateDiskValue(file);
         }
         if(subInode){
+            folderEntity->value.updateModificationTime();
+            folderEntity->value.size++;
+            folderEntity->updateDiskValue(file);
             return subInode;
         }
     }
@@ -1349,7 +1666,7 @@ std::optional<DiskEntity<Inode>> ExtManager::folderMkSubfile(RaidOneFile *file, 
             int address = sb.reserveBlock(file);
             if(address == -1){
                 folderEntity->updateDiskValue(file);
-                return -1;//ya no hay espacio en el bitmap de inodos
+                return {};//ya no hay espacio en el bitmap de inodos
             }
             folderEntity->value.blocks[i] = address;
 
@@ -1357,6 +1674,9 @@ std::optional<DiskEntity<Inode>> ExtManager::folderMkSubfile(RaidOneFile *file, 
             folderEntity->updateDiskValue(file);
         }
         if(subInode){
+            folderEntity->value.updateModificationTime();
+            folderEntity->value.size++;
+            folderEntity->updateDiskValue(file);
             return subInode;
         }
     }
@@ -1368,13 +1688,16 @@ std::optional<DiskEntity<Inode>> ExtManager::folderMkSubfile(RaidOneFile *file, 
             int address = sb.reserveBlock(file);
             if(address == -1){
                 folderEntity->updateDiskValue(file);
-                return -1;//ya no hay espacio en el bitmap de inodos
+                return {};//ya no hay espacio en el bitmap de inodos
             }
             folderEntity->value.blocks[i] = address;
             subInode = folderMkSubfileImp(file, sbEntity, usrId, grpId, permissions, name, content, 2, true, folderEntity->value.blocks[i]);
             folderEntity->updateDiskValue(file);
         }
         if(subInode){
+            folderEntity->value.updateModificationTime();
+            folderEntity->value.size++;
+            folderEntity->updateDiskValue(file);
             return subInode;
         }
     }
@@ -1386,13 +1709,16 @@ std::optional<DiskEntity<Inode>> ExtManager::folderMkSubfile(RaidOneFile *file, 
             int address = sb.reserveBlock(file);
             if(address == -1){
                 folderEntity->updateDiskValue(file);
-                return -1;//ya no hay espacio en el bitmap de inodos
+                return {};//ya no hay espacio en el bitmap de inodos
             }
             folderEntity->value.blocks[i] = address;
             subInode = folderMkSubfileImp(file, sbEntity, usrId, grpId, permissions, name, content, 3, true, folderEntity->value.blocks[i]);
             folderEntity->updateDiskValue(file);
         }
         if(subInode){
+            folderEntity->value.updateModificationTime();
+            folderEntity->value.size++;
+            folderEntity->updateDiskValue(file);
             return subInode;
         }
     }
@@ -1453,7 +1779,7 @@ std::optional<DiskEntity<Inode>> ExtManager::folderMkSubfileImp(RaidOneFile *fil
                 int address = sb.reserveBlock(file);
                 if(address == -1){
                     pointerBlock.updateDiskValue(file);
-                    return -1;//ya no hay espacio en el bitmap de inodos
+                    return {};//ya no hay espacio en el bitmap de inodos
                 }
                 pointers[i] = address;
                 subInode = folderMkSubfileImp(file, sbEntity, usrId, grpId, permissions, name, content, depth - 1, true, pointers[i]);
@@ -1466,5 +1792,32 @@ std::optional<DiskEntity<Inode>> ExtManager::folderMkSubfileImp(RaidOneFile *fil
     }
     return {};
 }
+
+bool ExtManager::findImp(RaidOneFile *file, const std::string& inodeName, DiskEntity<Inode> *inodeEntity, std::string &buffer, const std::string &name, size_t indentation)
+{
+    bool foundInThisBranch = false;
+    auto& inode = inodeEntity->value;
+    //chapuz. para poner <- en caso que este inode especificamente sea el archivo que estamos buscando
+    //bad performance too
+    std::string suffix("\n");
+
+    if(inodeName == name){
+        foundInThisBranch = true;
+        suffix = " <-\n";
+    }
+    if(inode.isFolder()){
+        auto subInodes = folderGetSubNamedInodes(file, inodeEntity);
+        for (int i=subInodes.size() - 1; i >= 0; i--) {
+            foundInThisBranch = findImp(file, subInodes[i].first, &subInodes[i].second, buffer, name, indentation + 4) || foundInThisBranch;
+        }
+    }
+    if(foundInThisBranch){
+        //bad performance, buncho o strings concats that I dont think can be optimized by the compiler
+        buffer = std::string(indentation, ' ') + "|_" + inodeName + suffix + buffer;
+    }
+
+    return foundInThisBranch;
+}
+
 
 

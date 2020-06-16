@@ -57,7 +57,10 @@ public:
     //igual a noimp pero pasa el string por ref
     static DiskEntity<Inode> folderGetClosestInodeImp(RaidOneFile* file, DiskEntity<Inode> *inodeEntity, std::string& remainingPath);
     static std::optional<DiskEntity<Inode>> folderGetSubInode(RaidOneFile* file, DiskEntity<Inode> *folderEntity, const std::string& name);
-    static std::optional<DiskEntity<Inode>> folderGetSubInodeImp(RaidOneFile* file, const std::string& name, char depth, int address);
+    //Comporlamiento no definido cuando se manda un inode que no sea directorio
+    //nitpick
+    static std::vector<std::pair<std::string, DiskEntity<Inode>>> folderGetSubNamedInodes(RaidOneFile *file, DiskEntity<Inode> *folderEntity);
+    static std::vector<DiskEntity<Inode>> folderGetSubInodes(RaidOneFile *file, DiskEntity<Inode> *folderEntity);
 
 private:
 
@@ -65,8 +68,8 @@ private:
 
     static int createRootAndUsrsTxt(RaidOneFile* file, DiskEntity<SuperBoot>* sbEntity);
 
-    static int chmod(const std::string& path, int ugo);
-    static int recursiveChmod(const std::string& path, int ugo);
+    static int recursiveChmod(RaidOneFile* file, DiskEntity<Inode>* inode, int usrId, int ugo);
+    static int recursiveChown(RaidOneFile* file, DiskEntity<Inode>* inodeEntity, int usrId, int newUsrId);
 
     //para manejar files:
     static int fileConcat(RaidOneFile* file, DiskEntity<SuperBoot> *sbEntity, DiskEntity<Inode> *fileEntity, const std::string& content);//-1 si se queda sin espacio
@@ -88,8 +91,14 @@ private:
     static std::optional<DiskEntity<Inode>> folderMkSubfolderImp(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, int usrId, int grpId, int permissions, const std::string &name, char depth, bool isNew, int address);//isNew nos indica si el address que recibe es de un nuevo bloque que se acaba de reservar con reserveBlock
     static std::optional<DiskEntity<Inode>> folderMkSubfile(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, DiskEntity<Inode> *folderEntity, int usrId, int grpId, int permissions, const std::string &name, const std::string &content);
     static std::optional<DiskEntity<Inode>> folderMkSubfileImp(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, int usrId, int grpId, int permissions, const std::string &name, const std::string &content, char depth, bool isNew, int address);
+    static std::optional<DiskEntity<Inode>> folderGetSubInodeImp(RaidOneFile* file, const std::string& name, char depth, int address);
+    //subInodeCount: how many subInodes have yet to be found according to folderEntity.size
+    static void folderGetSubNamedInodesImp(RaidOneFile *file, std::vector<std::pair<std::string, DiskEntity<Inode>>> &container, int &subInodeCount, char depth, int address);
+    static void folderGetSubInodesImp(RaidOneFile *file, std::vector<DiskEntity<Inode>> &container, int &subInodeCount, char depth, int address);
 
-
+    //Returns true if a file with that name was found in this "branch"
+    //Acepta inodes file e inodes directory
+    static bool findImp(RaidOneFile *file, const std::string& inodeName, DiskEntity<Inode> *inode, std::string& buffer, const std::string& name, size_t indentation);
     //Para manejar el journaling:
 
 friend int main();//Solo para debugging

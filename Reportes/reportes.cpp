@@ -404,8 +404,14 @@ int Reportes::writeBytesInCsvFile(const std::string &path, const std::vector<cha
 {
     std::ofstream file(path);
 
-    if(!file.is_open()){
-        return -1;
+    if (!file.is_open()) {
+        std::string dirPath = path.substr(0, path.find_last_of('/'));
+        int status = system((std::string("mkdir -p ") + dirPath).c_str());
+        if(status != 0){
+            Consola::reportarError("No se pudo escribir el archivo: " + path);
+            return -1;
+        }
+        file.open(path);
     }
 
     file.seekp(0, std::ios::beg);
@@ -429,9 +435,14 @@ int Reportes::writeStringInFile(const std::string &path, const std::string &cont
 {
     std::ofstream file(path);
 
-    if(!file.is_open()){
-        Consola::reportarError("No se pudo escribir el archivo: " + path);
-        return -1;
+    if (!file.is_open()) {
+        std::string dirPath = path.substr(0, path.find_last_of('/'));
+        int status = system((std::string("mkdir -p ") + dirPath).c_str());
+        if(status != 0){
+            Consola::reportarError("No se pudo escribir el archivo: " + path);
+            return -1;
+        }
+        file.open(path);
     }
 
     file.seekp(0, std::ios::beg);
