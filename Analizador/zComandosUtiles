@@ -6,6 +6,11 @@ hexdump -C -s 13184 -n 4096 '/home/javier/Dropbox/Colegio/2020/VacasJunio/Archiv
 
 exec -path="/home/javier/Dropbox/Colegio/2020/VacasJunio/Archivos/Fase2/ArchivosDeEntradaFase2/MyEntrada0.sh"
 exec -path="/home/javier/Dropbox/Colegio/2020/VacasJunio/Archivos/Fase2/ArchivosDeEntradaFase2/MyEntrada1.sh"
+exec -path="/home/javier/Dropbox/Colegio/2020/VacasJunio/Archivos/Fase2/ArchivosDeEntradaFase2/entradaF2.sh"
+
+
+#########################################################################################################################
+exec -path="/home/javier/Dropbox/Colegio/2020/VacasJunio/Archivos/Fase2/ArchivosDeEntradaFase2/remtest.sh"
 
 exec -path="/home/javier/Dropbox/Colegio/2020/VacasJunio/Archivos/Fase1/ArchivosDeEntradaFase1/EntradaDeDiego.sh"
 exec -path="/home/javier/Dropbox/Colegio/2020/VacasJunio/Archivos/Fase1/ArchivosDeEntradaFase1/EntradaDeJon.sh"

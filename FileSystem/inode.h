@@ -32,6 +32,7 @@ public:
 
     Inode();
     static Inode createFolderInode(int usrId, int grpId, int permissions);
+    static Inode createFolderInode(int usrId, int grpId, int size, int permissions);
     static Inode createFileInode(int usrId, int grpId, int size, int permissions);
 
     bool isNull();

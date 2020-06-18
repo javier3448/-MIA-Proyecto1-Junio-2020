@@ -464,7 +464,8 @@ int GraphMaker::mkDotLs(std::string &outDotCode, RaidOneFile *file, DiskEntity<I
 int GraphMaker::mkDotTree(std::string &outDotCode, RaidOneFile *file, DiskEntity<Inode> *rootEntity)
 {
     outDotCode = "digraph tree{\n"
-                 "node[shape = none];\n";
+                 "node[shape = none];\n"
+                 "rankdir = LR\n";
 
     mkDotTreeInode(outDotCode, file, rootEntity->address);
 

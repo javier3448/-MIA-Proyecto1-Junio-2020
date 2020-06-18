@@ -143,7 +143,7 @@ int Reportes::repBmInode(const std::string &idPart, const std::string &path)
     }
 
     std::vector<char> bytes = getBytes(&file, sbEntity.value.bitmapInodeBegin, sbEntity.value.inodesCount);
-    if (writeBytesInCsvFile(path, bytes) == -1) {
+    if (writeBytesInCsvFile(path + ".txt", bytes) == -1) {
         return -1;
     }
 
@@ -167,7 +167,7 @@ int Reportes::repBmBlock(const std::string &idPart, const std::string &path)
     }
 
     std::vector<char> bytes = getBytes(&file, sbEntity.value.bitmapBlockBegin, sbEntity.value.blocksCount);
-    if (writeBytesInCsvFile(path, bytes) == -1) {
+    if (writeBytesInCsvFile(path + ".txt", bytes) == -1) {
         return -1;
     }
 
@@ -210,7 +210,7 @@ int Reportes::repFile(const std::string &idPart, const std::string &path, const 
     content = fileName + "\n\n*********************************************************\n\n" +
               content;
 
-    return writeStringInFile(path, content);
+    return writeStringInFile(path + ".txt", content);
 }
 
 int Reportes::repLs(const std::string &idPart, const std::string &path, const std::string &ruta)

@@ -79,7 +79,20 @@ private:
     static int fileClear(RaidOneFile* file, DiskEntity<SuperBoot> *sbEntity, DiskEntity<Inode> *fileEntity);
     static int fileClearImp(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, char depth, int address);
     static int fileEdit(RaidOneFile* file, DiskEntity<SuperBoot> *sbEntity, DiskEntity<Inode> *fileEntity, const std::string& content);//-1 si se queda sin espacio
+    //Bad design: A diferencia de los otros metodos file no revisa que haya suficiente espacio
+    //disponible, se espera que esta revision ocurra antes de llamar a este metodo. se tomo esa decision
+    //porque este metodo se llamara recursivamente y es preferible hacer esos chequeos afuera de la recursion
+    static DiskEntity<Inode> fileCopy(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, DiskEntity<Inode> *fileEntity, int usrId, int grpId, int permissions);
+    //retorna el puntero al nuevo bloque. El nuevo bloque es una compia del bloque en address
+    static int fileCopyImp(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, int usrId, int grpId, int permissions, char depth, int sourceAddress);
 
+    static bool folderCanUsrRemove(RaidOneFile* file, const std::string& inodeName, DiskEntity<Inode>* inodeEntity, int usrId, int grpId, const std::string& usrName);
+    static bool folderCanUsrCopy(RaidOneFile* file, const std::string& inodeName, DiskEntity<Inode>* inodeEntity, int usrId, int grpId, const std::string& usrName);
+    //retorna 0 si no ocurrio error, -1 si ocurrio error
+    static int folderClear(RaidOneFile* file, DiskEntity<SuperBoot> *sbEntity, DiskEntity<Inode> *folderEntity);
+    //retorna 1 si no ocurrio error pero no encontro el target: name; 0 si lo encontro y lo elimino
+    //con exito; y -1 si no le elimino, ocurrio un error y no puede continuar la busqueda
+    static int folderClearImp(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, char depth, int address);
     static bool folderMkfileRecursively(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, DiskEntity<Inode> *folderEntity, int usrId, int grpId, int permissions, const std::string &path, const std::string &fileName, const std::string &content);
     //igual a noimp pero pasa el string por ref
     static bool folderMkfileRecursivelyImp(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, DiskEntity<Inode> *folderEntity, int usrId, int grpId, int permissions, std::string &remainingPath, const std::string &fileName, const std::string &content);
@@ -95,6 +108,26 @@ private:
     //subInodeCount: how many subInodes have yet to be found according to folderEntity.size
     static void folderGetSubNamedInodesImp(RaidOneFile *file, std::vector<std::pair<std::string, DiskEntity<Inode>>> &container, int &subInodeCount, char depth, int address);
     static void folderGetSubInodesImp(RaidOneFile *file, std::vector<DiskEntity<Inode>> &container, int &subInodeCount, char depth, int address);
+    //retorna 0 si no ocurrio error, -1 si ocurrio error
+    static int folderRemoveSubInode(RaidOneFile* file, DiskEntity<SuperBoot> *sbEntity, DiskEntity<Inode> *folderEntity, const std::string& name);
+    //retorna 1 si no ocurrio error pero no encontro el target: name; 0 si lo encontro y lo elimino
+    //con exito; y -1 si no le elimino, ocurrio un error y no puede continuar la busqueda
+    static int folderRemoveSubInodeImp(RaidOneFile* file, DiskEntity<SuperBoot> *sbEntity, const std::string& name, char depth, int address);
+    //Bad design: A diferencia de los otros metodos file no revisa que haya suficiente espacio
+    //disponible, se espera que esta revision ocurra antes de llamar a este metodo. se tomo esa decision
+    //porque este metodo se llamara recursivamente y es preferible hacer esos chequeos afuera de la recursion
+    static DiskEntity<Inode> folderCopy(RaidOneFile* file, DiskEntity<SuperBoot> *sbEntity, int usrId, int grpId, int permissions, DiskEntity<Inode> *folderEntity);
+    //retorna el puntero al nuevo bloque. El nuevo bloque es una compia del bloque en address
+    static int folderCopyImp(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, int usrId, int grpId, int permissions, char depth, int address);
+
+    //bad design
+    //pasamos dos int como ref para llevar conteo en vez de retorna un pair<int, int>
+    //es porque no se como hacer para mantener un retornar un pair sin tener que crear
+    //otro a cada rato
+    //TODO: testear bien. (sacarle inodeCount blockCount a / ver si es igual a lo que dice el sb
+    static void getInodeAndBlockCount(RaidOneFile* file, DiskEntity<Inode>* inodeEntity, int& inodeCount, int& blockCount);
+    //address es un puntero a bloque en el disco
+    static void getInodeAndBlockCountImp(RaidOneFile* file, int& inodeCount, int& blockCount, char depth, int address);
 
     //Returns true if a file with that name was found in this "branch"
     //Acepta inodes file e inodes directory

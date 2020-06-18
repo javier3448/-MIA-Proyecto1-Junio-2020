@@ -412,8 +412,6 @@ int ExtManager::mkFile(const std::string &path, bool p, const std::string &conte
         return -1;
     }
 
-    std::string firstSubInodeName = remainingPath.substr(0, path.find_first_of('/'));
-
     if(remainingPath.length() < 1 &&
         folderGetSubInode(&file, &closestInode, fileName)){//
         Consola::reportarError("El archivo: <" + path + "> ya existe");
@@ -559,9 +557,68 @@ int ExtManager::cat(const std::string &path)
 
 int ExtManager::rem(const std::string &path)
 {
+    if(!currUserSession){
+        Consola::reportarError("No se a loggeado ningun usuario");
+        return -1;
+    }
 
-    //sbEntity.updateDiskValue(&file);
-    return -1;
+    RaidOneFile file(currUserSession->part.path, std::ios::binary | std::ios::in | std::ios::out);
+    DiskEntity<SuperBoot> sbEntity(currUserSession->part.contentStart, &file);
+    //Agregamos al journaling
+    JournManager::addRem(&file, &sbEntity, currUserSession->user.name, path);
+
+    DiskEntity<Inode> usersEntity = getUsers(&file, &sbEntity);
+    std::string usersFileContent = fileGetContent(&file, &usersEntity);
+    UsersData usersData(usersFileContent);
+
+    DiskEntity<Inode> rootEntity = getRoot(&file, &sbEntity);
+
+    std::string relativePath;
+    MyStringUtil::removeSlash(path, relativePath);//Crea el path relativo al root (i.e. quita el primer slash)
+    std::string folderPath;
+    //El nombre del archivo/directorio que vamos a borrar
+    std::string targetName;
+    MyStringUtil::splitFolderPathAndFileName(path, folderPath, targetName);
+
+    //Tenemos que conseguir el inodo del padre primero porque tenemos que eliminar
+    //El puntero que apunta a la carpeta que se va a elimanar, dicho puntero esta en el inodo del padre
+    auto[parentInode, remainingPath] = folderGetClosestInode(&file, &rootEntity, folderPath);
+
+    if(remainingPath.length() != 0){
+        Consola::reportarError("No existe el directorio: <" + path + ">");
+        return -1;
+    }
+
+    if(parentInode.value.isFile()){
+        Consola::reportarError("El path: </" + folderPath + "> es un archivo, no una carpeta");
+        return -1;
+    }
+
+    //Chapuz: conseguimos target inode 2 veces, unca con folderGetSubInode y otra andentro de
+    //folderRemoveSubInode, deberiamos de hacer la verificacion de folderCanUsrRemove desde
+    //adentro de folderRemvoerSubInode
+    auto targetInode = folderGetSubInode(&file, &parentInode, targetName);
+    if(!targetInode){
+        Consola::reportarError("NO existe el directorio: <" + path + ">");
+        return -1;
+    }
+
+    int usrId = currUserSession->user.id;
+    int grpId= usersData.getGroupId(currUserSession->user.groupName);
+    //El isRoot al principio del && hace que no tengamos que hacer todo el canUsrRemove
+    //En caso de que el usuario sea root. for Better performace
+    if(!currUserSession->isRoot() &&
+        !folderCanUsrRemove(&file, targetName, &targetInode.value(), usrId, grpId, currUserSession->user.name)){
+        Consola::reportarError("No tiene todos los permisos sobre: <" + path + ">");
+        return -1;
+    }
+
+    if(folderRemoveSubInode(&file, &sbEntity, &parentInode, targetName) == -1){
+        Consola::reportarError("No se pudo elimnar: <" + path + ">");
+        return -1;
+    }
+
+    return 0;
 }
 
 int ExtManager::edit(const std::string &path, const std::string &content)
@@ -998,7 +1055,7 @@ int ExtManager::fileWriteImp(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity,
     return (int) content.length() - beg;
 }
 
-//retorna 0 si termino i.e encontro un puntero -1, 1 si termino de recorrer sus punteros y no encontro ningun -1
+//retorna 0 si no ocurrio error, -1 si ocurrio error
 int ExtManager::fileClear(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, DiskEntity<Inode> *fileEntity)
 {
     SuperBoot& sb = sbEntity->value;
@@ -1108,6 +1165,240 @@ int ExtManager::fileEdit(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, Dis
         return result;
     }
     return fileWrite(file, sbEntity, fileEntity, content);
+}
+
+DiskEntity<Inode> ExtManager::fileCopy(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, DiskEntity<Inode> *fileEntity, int usrId, int grpId, int permissions)
+{
+    SuperBoot& sb = sbEntity->value;
+    auto& sourceInode = fileEntity->value;
+
+    fileEntity->value.updateAccessTime();
+
+    //Creamos el inodo copia
+    //Chapuz: constante quemada y restringimos a fileCopy a no poder crear una copia con un permiso no default
+    int destInodeAddress = sb.reserveInode(file);
+    DiskEntity<Inode> destInodeEntity(destInodeAddress, Inode::createFileInode(usrId, grpId, sourceInode.size, 0x664));
+    auto& destInode = destInodeEntity.value;
+
+    //Nota: como es inode file podemos asegura que al llegar a un apuntador -1 se termino de copiar el contenido del archivo
+    int i = 0;
+    for (i = 0; i < Inode::DIRECT_BLK_BEG + Inode::DIRECT_BLK_SIZE; i++) {
+        if(sourceInode.blocks[i] == -1){
+            destInodeEntity.updateDiskValue(file);
+            return destInodeEntity;
+        }
+        destInode.blocks[i] = fileCopyImp(file, sbEntity, usrId, grpId, permissions, 0, sourceInode.blocks[i]);
+    }
+    for(; i < Inode::SIMPLE_INDIRECT_BLK_BEG + Inode::SIMPLE_INDIRECT_BLK_SIZE; i++){
+        if(sourceInode.blocks[i] == -1){
+            destInodeEntity.updateDiskValue(file);
+            return destInodeEntity;
+        }
+        destInode.blocks[i] = fileCopyImp(file, sbEntity, usrId, grpId, permissions, 1, sourceInode.blocks[i]);
+    }
+    for(; i < Inode::DOUBLE_INDIRECT_BLK_BEG + Inode::DOUBLE_INDIRECT_BLK_SIZE; i++){
+        if(sourceInode.blocks[i] == -1){
+            destInodeEntity.updateDiskValue(file);
+            return destInodeEntity;
+        }
+        destInode.blocks[i] = fileCopyImp(file, sbEntity, usrId, grpId, permissions, 2, sourceInode.blocks[i]);
+    }
+    for(; i < Inode::TRIPLE_INDIRECT_BLK_BEG + Inode::TRIPLE_INDIRECT_BLK_SIZE; i++){
+        if(sourceInode.blocks[i] == -1){
+            destInodeEntity.updateDiskValue(file);
+            return destInodeEntity;
+        }
+        destInode.blocks[i] = fileCopyImp(file, sbEntity, usrId, grpId, permissions, 3, sourceInode.blocks[i]);
+    }//Nos podriamos ahorar un monton de lineas si lo metemos todo de un for que vaya de 0 a Indoe ::blks_size. Pero siento que asi se lee mejor. No se
+
+    destInodeEntity.updateDiskValue(file);
+    return destInodeEntity;//Este result es diferente a los -1 anteriores porque este significa que el archivo es demasiado grande para el inodo
+}
+
+int ExtManager::fileCopyImp(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, int usrId, int grpId, int permissions, char depth, int address)
+{
+    if(depth == 0){
+        DiskEntity<FileBlock> sourceFileBlock(address, file);
+        int destAddress = sbEntity->value.reserveBlock(file);
+        DiskEntity<FileBlock> destBlock(destAddress, file);
+        std::memcpy(destBlock.value.content, sourceFileBlock.value.content, FileBlock::CONTENT_SIZE);
+        sourceFileBlock.updateDiskValue(file);
+        return destAddress;
+    }
+    else{
+        DiskEntity<PointerBlock> sourcePointerBlock(address, PointerBlock());
+        auto& sourcePointers = sourcePointerBlock.value.pointers;
+        int destAddress = sbEntity->value.reserveBlock(file);
+        DiskEntity<PointerBlock> destBlock(destAddress, file);
+        auto& destPointers = destBlock.value.pointers;
+        for (int i = 0; i < PointerBlock::POINTERS_SIZE; i++) {
+            destPointers[i] = fileCopyImp(file, sbEntity, usrId, grpId, permissions, depth - 1, sourcePointers[i]);
+        }
+        sourcePointerBlock.updateDiskValue(file);
+        return destAddress;
+    }
+}
+
+bool ExtManager::folderCanUsrRemove(RaidOneFile *file, const std::string& inodeName, DiskEntity<Inode> *inodeEntity, int usrId, int grpId, const std::string &usrName)
+{
+    auto& inode = inodeEntity->value;
+
+    if(!inode.canUsrWrite(usrId, grpId)){
+        Consola::reportarError("El usuario " + usrName + " no puede eliminar el archivo: " + inodeName);
+        return false;
+    }
+
+    if(inode.isFolder()){
+        auto subInodes = folderGetSubNamedInodes(file, inodeEntity);
+        for (int i=subInodes.size() - 1; i >= 0; i--) {
+            if(!folderCanUsrRemove(file, subInodes[i].first, &subInodes[i].second, usrId, grpId, usrName))
+                return false;
+        }
+    }
+
+    return true;
+}
+
+bool ExtManager::folderCanUsrCopy(RaidOneFile *file, const std::string &inodeName, DiskEntity<Inode> *inodeEntity, int usrId, int grpId, const std::string &usrName)
+{
+    auto& inode = inodeEntity->value;
+
+    if(!inode.canUsrRead(usrId, grpId)){
+        Consola::reportarError("El usuario " + usrName + " no puede copiar el archivo: " + inodeName);
+        return false;
+    }
+
+    if(inode.isFolder()){
+        auto subInodes = folderGetSubNamedInodes(file, inodeEntity);
+        for (int i=subInodes.size() - 1; i >= 0; i--) {
+            if(!folderCanUsrCopy(file, subInodes[i].first, &subInodes[i].second, usrId, grpId, usrName))
+                return false;
+        }
+    }
+
+    return true;
+}
+
+int ExtManager::folderClear(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, DiskEntity<Inode> *folderEntity)
+{
+    SuperBoot& sb = sbEntity->value;
+
+    folderEntity->value.updateModificationTime();
+    folderEntity->value.size = 0;
+
+    int i = 0;
+    for (i = 0; i < Inode::DIRECT_BLK_BEG + Inode::DIRECT_BLK_SIZE; i++) {
+        if(folderEntity->value.blocks[i] == -1){
+            continue;
+        }
+        sb.deleteBlock(file, folderEntity->value.blocks[i]);
+        int result = folderClearImp(file, sbEntity, 0, folderEntity->value.blocks[i]);
+        if(result == 0){
+            folderEntity->value.blocks[i] = -1;
+            folderEntity->updateDiskValue(file);
+            return result;
+        }
+        folderEntity->value.blocks[i] = -1;
+        folderEntity->updateDiskValue(file);
+    }
+    for(; i < Inode::SIMPLE_INDIRECT_BLK_BEG + Inode::SIMPLE_INDIRECT_BLK_SIZE; i++){
+        if(folderEntity->value.blocks[i] == -1){
+            folderEntity->updateDiskValue(file);
+            return 0;
+        }
+        sb.deleteBlock(file, folderEntity->value.blocks[i]);
+        int result = folderClearImp(file, sbEntity, 1, folderEntity->value.blocks[i]);
+        if(result == 0){
+            folderEntity->value.blocks[i] = -1;
+            folderEntity->updateDiskValue(file);
+            return result;
+        }
+        folderEntity->value.blocks[i] = -1;
+        folderEntity->updateDiskValue(file);
+    }
+    for(; i < Inode::DOUBLE_INDIRECT_BLK_BEG + Inode::DOUBLE_INDIRECT_BLK_SIZE; i++){
+        if(folderEntity->value.blocks[i] == -1){
+            folderEntity->updateDiskValue(file);
+            return 0;
+        }
+        sb.deleteBlock(file, folderEntity->value.blocks[i]);
+        int result = folderClearImp(file, sbEntity, 2, folderEntity->value.blocks[i]);
+        if(result == 0){
+            folderEntity->value.blocks[i] = -1;
+            folderEntity->updateDiskValue(file);
+            return result;
+        }
+        folderEntity->value.blocks[i] = -1;
+        folderEntity->updateDiskValue(file);
+    }
+    for(; i < Inode::TRIPLE_INDIRECT_BLK_BEG + Inode::TRIPLE_INDIRECT_BLK_SIZE; i++){
+        if(folderEntity->value.blocks[i] == -1){
+            folderEntity->updateDiskValue(file);
+            return 0;
+        }
+        sb.deleteBlock(file, folderEntity->value.blocks[i]);
+        int result = folderClearImp(file, sbEntity, 3, folderEntity->value.blocks[i]);
+        if(result == 0){
+            folderEntity->value.blocks[i] = -1;
+            folderEntity->updateDiskValue(file);
+            return result;
+        }
+        folderEntity->value.blocks[i] = -1;
+        folderEntity->updateDiskValue(file);
+    }//Nos podriamos ahorar un monton de lineas si lo metemos todo de un for que vaya de 0 a Indoe ::blks_size. Pero siento que asi se lee mejor. No se
+
+    folderEntity->updateDiskValue(file);
+
+    return 0;
+}
+
+int ExtManager::folderClearImp(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, char depth, int address)
+{
+    SuperBoot& sb = sbEntity->value;
+    if(depth == 0){
+        DiskEntity<FolderBlock> folderBlock(address, file);
+        auto& contents = folderBlock.value.contents;
+        for(size_t i = 0; i < FolderBlock::CONTENTS_SIZE; i++){
+            if(contents[i].isNull()){
+                continue;
+            }
+            DiskEntity<Inode> subInodeEntity(contents[i].inodePtr, file);
+            sb.deleteInode(file, contents[i].inodePtr);
+//            std::memset(contents[i].name, '\0', FolderContent::NAME_SIZE);
+//            contents[i].inodePtr = -1;
+            if(subInodeEntity.value.isFolder()){
+                if(folderClear(file, sbEntity, &subInodeEntity) == -1){
+                    return -1;
+                }
+            }
+            else{
+                if(fileClear(file, sbEntity, &subInodeEntity) == -1){
+                    return -1;
+                }
+            }
+        }
+        return 1;
+    }
+    else {//Significa que depth es 1 o mas
+        DiskEntity<PointerBlock> pointerBlock(address, file);
+        auto& pointers = pointerBlock.value.pointers;
+        for (int i = 0; i < PointerBlock::POINTERS_SIZE; i++) {
+            if(pointers[i] == -1){
+                pointerBlock.updateDiskValue(file);
+                return 0;
+            }
+            sb.deleteBlock(file, pointers[i]);
+            int result = folderClearImp(file, sbEntity, depth - 1, pointers[i]);
+            if(result == 0){
+                pointers[i] = -1;
+                pointerBlock.updateDiskValue(file);
+                return result;
+            }
+            pointers[i] = -1;
+            pointerBlock.updateDiskValue(file);
+        }
+    }
+    return 1;
 }
 
 std::tuple<DiskEntity<Inode>, std::string> ExtManager::folderGetClosestInode(RaidOneFile *file, DiskEntity<Inode> *inodeEntity, const std::string &path)
@@ -1380,6 +1671,230 @@ void ExtManager::folderGetSubInodesImp(RaidOneFile *file, std::vector<DiskEntity
                 continue;
             }
             folderGetSubInodesImp(file, container, subInodeCount, depth - 1, pointers[i]);
+        }
+    }
+}
+
+int ExtManager::folderRemoveSubInode(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, DiskEntity<Inode> *folderEntity, const std::string &name)
+{
+    folderEntity->value.updateAccessTime();
+
+    int i = 0;
+    for (i = 0; i < Inode::DIRECT_BLK_BEG + Inode::DIRECT_BLK_SIZE; i++) {
+        if(folderEntity->value.blocks[i] == -1){
+            continue;
+        }
+        int result = folderRemoveSubInodeImp(file, sbEntity, name, 0, folderEntity->value.blocks[i]);
+        if(result != 1){
+            if(result == 0){
+                folderEntity->value.size--;
+                folderEntity->updateDiskValue(file);
+            }
+            return result;
+        }
+    }
+    for(; i < Inode::SIMPLE_INDIRECT_BLK_BEG + Inode::SIMPLE_INDIRECT_BLK_SIZE; i++){
+        if(folderEntity->value.blocks[i] == -1){
+            return -1;
+        }
+        int result = folderRemoveSubInodeImp(file, sbEntity, name, 1, folderEntity->value.blocks[i]);
+        if(result != 1){
+            if(result == 0){
+                folderEntity->value.size--;
+                folderEntity->updateDiskValue(file);
+            }
+            return result;
+        }
+    }
+    for(; i < Inode::DOUBLE_INDIRECT_BLK_BEG + Inode::DOUBLE_INDIRECT_BLK_SIZE; i++){
+        if(folderEntity->value.blocks[i] == -1){
+            return -1;
+        }
+        int result = folderRemoveSubInodeImp(file, sbEntity, name, 2, folderEntity->value.blocks[i]);
+        if(result != 1){
+            if(result == 0){
+                folderEntity->value.size--;
+                folderEntity->updateDiskValue(file);
+            }
+            return result;
+        }
+    }
+    for(; i < Inode::TRIPLE_INDIRECT_BLK_BEG + Inode::TRIPLE_INDIRECT_BLK_SIZE; i++){
+        if(folderEntity->value.blocks[i] == -1){
+            return -1;
+        }
+        int result = folderRemoveSubInodeImp(file, sbEntity, name, 3, folderEntity->value.blocks[i]);
+        if(result != 1){
+            if(result == 0){
+                folderEntity->value.size--;
+                folderEntity->updateDiskValue(file);
+            }
+            return result;
+        }
+    }
+
+    return -1; //Despues de recorrer todos los punteros, si todavia tiene null significa que esta lleno y ninguno de sus subInodos
+}
+
+int ExtManager::folderRemoveSubInodeImp(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, const std::string &name, char depth, int address)
+{
+    if(depth == 0){
+        DiskEntity<FolderBlock> folderBlock(address, file);
+        auto& folderContents = folderBlock.value.contents;
+        for (int i = 0; i < FolderBlock::CONTENTS_SIZE; i++) {
+            if(folderContents[i].isNull()){
+                continue;
+            }
+            if(folderContents[i].name == name){
+                //Quitamos el puntero al inodo por eliminar
+                DiskEntity<Inode> subInodeEntity(folderContents[i].inodePtr, file);
+                sbEntity->value.deleteInode(file, folderContents[i].inodePtr);
+                std::strcpy(folderContents[i].name, "null");
+                folderContents[i].inodePtr = -1;
+                folderBlock.updateDiskValue(file);
+
+                if(subInodeEntity.value.isFolder()){
+                    if(folderClear(file, sbEntity, &subInodeEntity) == -1){
+                        return -1;
+                    }
+                }
+                else{
+                    if(fileClear(file, sbEntity, &subInodeEntity) == -1){
+                        return -1;
+                    }
+                }
+            }
+        }
+    }
+    else {//Significa que depth es 1 o mas
+        DiskEntity<PointerBlock> pointerBlock(address, file);
+        auto& pointers = pointerBlock.value.pointers;
+        for (int i = 0; i < PointerBlock::POINTERS_SIZE; i++) {
+            if(pointers[i] == -1){
+                return -1;
+            }
+            int result = folderRemoveSubInodeImp(file, sbEntity, name, depth - 1, pointers[i]);
+            if(result != 1){
+                return result;
+            }
+        }
+    }
+    return {};
+}
+
+DiskEntity<Inode> ExtManager::folderCopy(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, int usrId, int grpId, int permissions, DiskEntity<Inode> *folderEntity)
+{
+    SuperBoot& sb = sbEntity->value;
+    auto& sourceInode = folderEntity->value;
+
+    folderEntity->value.updateAccessTime();
+
+    //Creamos el inodo copia
+    //Chapuz: constante quemada y restringimos a fileCopy a no poder crear una copia con un permiso no default
+    int destInodeAddress = sb.reserveInode(file);
+    DiskEntity<Inode> destInodeEntity(destInodeAddress, Inode::createFolderInode(usrId, grpId, sourceInode.size, 0x664));
+    auto& destInode = destInodeEntity.value;
+
+    //Nota: como es inode file podemos asegura que al llegar a un apuntador -1 se termino de copiar el contenido del archivo
+    int i = 0;
+    for (i = 0; i < Inode::DIRECT_BLK_BEG + Inode::DIRECT_BLK_SIZE; i++) {
+        if(sourceInode.blocks[i] == -1){
+            continue;
+        }
+        destInode.blocks[i] = folderCopyImp(file, sbEntity, usrId, grpId, permissions, 0, sourceInode.blocks[i]);
+    }
+    for(; i < Inode::SIMPLE_INDIRECT_BLK_BEG + Inode::SIMPLE_INDIRECT_BLK_SIZE; i++){
+        if(sourceInode.blocks[i] == -1){
+            destInodeEntity.updateDiskValue(file);
+            return destInodeEntity;
+        }
+        destInode.blocks[i] = folderCopyImp(file, sbEntity, usrId, grpId, permissions, 1, sourceInode.blocks[i]);
+    }
+    for(; i < Inode::DOUBLE_INDIRECT_BLK_BEG + Inode::DOUBLE_INDIRECT_BLK_SIZE; i++){
+        if(sourceInode.blocks[i] == -1){
+            destInodeEntity.updateDiskValue(file);
+            return destInodeEntity;
+        }
+        destInode.blocks[i] = folderCopyImp(file, sbEntity, usrId, grpId, permissions, 2, sourceInode.blocks[i]);
+    }
+    for(; i < Inode::TRIPLE_INDIRECT_BLK_BEG + Inode::TRIPLE_INDIRECT_BLK_SIZE; i++){
+        if(sourceInode.blocks[i] == -1){
+            destInodeEntity.updateDiskValue(file);
+            return destInodeEntity;
+        }
+        destInode.blocks[i] = folderCopyImp(file, sbEntity, usrId, grpId, permissions, 3, sourceInode.blocks[i]);
+    }//Nos podriamos ahorar un monton de lineas si lo metemos todo de un for que vaya de 0 a Indoe ::blks_size. Pero siento que asi se lee mejor. No se
+
+    destInodeEntity.updateDiskValue(file);
+    return destInodeEntity;//Este result es diferente a los -1 anteriores porque este significa que el archivo es demasiado grande para el inodo
+}
+
+int ExtManager::folderCopyImp(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, int usrId, int grpId, int permissions, char depth, int address)
+{
+
+}
+
+void ExtManager::getInodeAndBlockCount(RaidOneFile *file, DiskEntity<Inode> *inodeEntity, int &inodeCount, int &blockCount)
+{
+    inodeCount++;
+    auto& inode = inodeEntity->value;
+    if(inode.isFile()){
+        blockCount += ExtUtility::neededBlocks(inode.size) - ExtUtility::neededBlocks(inode.size);
+    }
+    else{
+        int i = 0;
+        for (i = 0; i < Inode::DIRECT_BLK_BEG + Inode::DIRECT_BLK_SIZE; i++) {
+            if(inode.blocks[i] == -1){
+                continue;
+            }
+            getInodeAndBlockCountImp(file, inodeCount, blockCount, 0, inode.blocks[i]);
+        }
+        for(; i < Inode::SIMPLE_INDIRECT_BLK_BEG + Inode::SIMPLE_INDIRECT_BLK_SIZE; i++){
+            if(inode.blocks[i] == -1){
+                return;
+            }
+            getInodeAndBlockCountImp(file, inodeCount, blockCount, 1, inode.blocks[i]);
+
+        }
+        for(; i < Inode::DOUBLE_INDIRECT_BLK_BEG + Inode::DOUBLE_INDIRECT_BLK_SIZE; i++){
+            if(inode.blocks[i] == -1){
+                return;
+            }
+            getInodeAndBlockCountImp(file, inodeCount, blockCount, 2, inode.blocks[i]);
+        }
+        for(; i < Inode::TRIPLE_INDIRECT_BLK_BEG + Inode::TRIPLE_INDIRECT_BLK_SIZE; i++){
+            if(inode.blocks[i] == -1){
+                return;
+            }
+            getInodeAndBlockCountImp(file, inodeCount, blockCount, 3, inode.blocks[i]);
+        }//Nos podriamos ahorar un monton de lineas si lo metemos todo de un for que vaya de 0 a Indoe ::blks_size. Pero siento que asi se lee mejor. No se
+    }
+
+}
+
+//[ !!! ] ASUME QUE EL ADDRESS ES UN BLOQUE DE UN INODE TIPO DIRECTORIO!!!
+void ExtManager::getInodeAndBlockCountImp(RaidOneFile *file, int &inodeCount, int &blockCount, char depth, int address)
+{
+    blockCount++;
+    if(depth == 0){
+        DiskEntity<FolderBlock> folderBlock(address, file);
+        auto& contents = folderBlock.value.contents;
+        for(size_t i = 0; i < FolderBlock::CONTENTS_SIZE; i++){
+            if(contents[i].isNull()){
+                continue;
+            }
+            DiskEntity<Inode> subInodeEntity(contents[i].inodePtr, file);
+            getInodeAndBlockCount(file, &subInodeEntity, inodeCount, blockCount);
+        }
+    }
+    else{
+        DiskEntity<PointerBlock> pointerBlock(address, file);
+        auto& pointers = pointerBlock.value.pointers;
+        for (int i = 0; i < PointerBlock::POINTERS_SIZE; i++) {
+            if(pointers[i] == -1){
+                return;
+            }
+            getInodeAndBlockCountImp(file, inodeCount, blockCount, depth - 1, pointers[i]);
         }
     }
 }

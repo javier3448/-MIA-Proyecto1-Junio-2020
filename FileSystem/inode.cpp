@@ -23,6 +23,23 @@ Inode Inode::createFolderInode(int usrId, int grpId, int permissions)
     return inode;
 }
 
+Inode Inode::createFolderInode(int usrId, int grpId, int size, int permissions)
+{
+    Inode inode = Inode();
+    inode.usrId = usrId;
+    inode.grpId = grpId;
+    inode.size = size;
+    time_t rawtime;
+    time(&rawtime);
+    inode.creationTime = *localtime(&rawtime);
+    inode.accessTime = inode.creationTime;
+    inode.modificationTime = inode.creationTime;
+    inode.type = TYPE_FOLDER;
+    inode.permissions = permissions;
+
+    return inode;
+}
+
 Inode Inode::createFileInode(int usrId, int grpId, int size, int permissions)
 {
     Inode inode = Inode();
