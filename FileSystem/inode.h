@@ -3,6 +3,9 @@
 
 #include <ctime>
 #include <string>
+#include "FileSystem/fileblock.h"
+#include "FileSystem/folderblock.h"
+#include "FileSystem/pointerblock.h"
 
 class Inode
 {
@@ -16,6 +19,13 @@ public:
     static constexpr int TRIPLE_INDIRECT_BLK_BEG = 14;
     static constexpr int TRIPLE_INDIRECT_BLK_SIZE = 1;
     static constexpr int BLKS_SIZE = DIRECT_BLK_SIZE + SIMPLE_INDIRECT_BLK_SIZE + DOUBLE_INDIRECT_BLK_SIZE + TRIPLE_INDIRECT_BLK_SIZE;
+
+    //Creo que oficialmente se nos fue la mano con las constantes :(
+    //chapuz: Constante quemada. No se que es peor si tener una operacion super larga llena de constantes
+    //operacion: FileBlock::CONTENT_SIZE*(DIRECT_BLK_SIZE + SIMPLE_INDIRECT_BLK_SIZE * PointerBlock::POINTERS_SIZE + DOUBLE_INDIRECT_BLK_SIZE * PointerBlock::POINTERS_SIZE^2 + TRIPLE_INDIRECT_BLK_SIZE * PointerBlock::POINTERS_SIZE^3);
+    static constexpr int MAX_FILE_SIZE = 280320;
+    //operacion: FileBlock::CONTENTS_SIZE*(DIRECT_BLK_SIZE + SIMPLE_INDIRECT_BLK_SIZE * PointerBlock::POINTERS_SIZE + DOUBLE_INDIRECT_BLK_SIZE * PointerBlock::POINTERS_SIZE^2 + TRIPLE_INDIRECT_BLK_SIZE * PointerBlock::POINTERS_SIZE^3);
+    static constexpr int MAX_FOLDER_SIZE = 17520;
 
     static const char TYPE_FOLDER = 0;
     static const char TYPE_FILE = 1;

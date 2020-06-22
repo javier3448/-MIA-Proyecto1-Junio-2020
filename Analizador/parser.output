@@ -52,18 +52,19 @@ Grammar
    39      | ADD EQUALS INTEGER
    40      | ID EQUALS TEXT
    41      | USR EQUALS TEXT
-   42      | PWD EQUALS TEXT
-   43      | GRP EQUALS TEXT
-   44      | UGO EQUALS INTEGER
-   45      | R
-   46      | P
-   47      | CONT EQUALS TEXT
-   48      | _FILE EQUALS TEXT
-   49      | DEST EQUALS TEXT
-   50      | RUTA EQUALS TEXT
+   42      | PWD EQUALS INTEGER
+   43      | PWD EQUALS TEXT
+   44      | GRP EQUALS TEXT
+   45      | UGO EQUALS INTEGER
+   46      | R
+   47      | P
+   48      | CONT EQUALS TEXT
+   49      | _FILE EQUALS TEXT
+   50      | DEST EQUALS TEXT
+   51      | RUTA EQUALS TEXT
 
-   51 _type: DELETE_TYPE
-   52      | PART_TYPE
+   52 _type: DELETE_TYPE
+   53      | PART_TYPE
 
 
 Terminals, with rules where they appear
@@ -86,7 +87,7 @@ UNMOUNT (270) 8
 PAUSE (271) 9
 REP (272) 10
 ID (273) 40
-RUTA (274) 50
+RUTA (274) 51
 MK_FS (275) 11
 LOGIN (276) 12
 MK_GRP (277) 14
@@ -106,23 +107,23 @@ FIND (290) 27
 CHOWN (291) 28
 CHGRP (292) 29
 USR (293) 41
-PWD (294) 42
-GRP (295) 43
-UGO (296) 44
-R (297) 45
-P (298) 46
-CONT (299) 47
-_FILE (300) 48
-DEST (301) 49
+PWD (294) 42 43
+GRP (295) 44
+UGO (296) 45
+R (297) 46
+P (298) 47
+CONT (299) 48
+_FILE (300) 49
+DEST (301) 50
 LOGOUT (302) 13
-EQUALS (303) 32 33 34 35 36 37 38 39 40 41 42 43 44 47 48 49 50
+EQUALS (303) 32 33 34 35 36 37 38 39 40 41 42 43 44 45 48 49 50 51
 LINE_BREAK (304)
-INTEGER (305) 32 39 44
-TEXT (306) 33 34 40 41 42 43 47 48 49 50
-PART_TYPE (307) 52
+INTEGER (305) 32 39 42 45
+TEXT (306) 33 34 40 41 43 44 48 49 50 51
+PART_TYPE (307) 53
 UNIT_TYPE (308) 35
 FIT_TYPE (309) 36
-DELETE_TYPE (310) 38 51
+DELETE_TYPE (310) 38 52
 
 
 Nonterminals, with rules where they appear
@@ -141,9 +142,9 @@ l_params (60)
     20 21 22 23 24 25 26 27 28 29 30
 param (61)
     on left: 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49
-    50, on right: 30 31
+    50 51, on right: 30 31
 _type (62)
-    on left: 51 52, on right: 37
+    on left: 52 53, on right: 37
 
 
 State 0
@@ -985,7 +986,7 @@ State 38
 
 State 39
 
-   50 param: RUTA . EQUALS TEXT
+   51 param: RUTA . EQUALS TEXT
 
     EQUALS  shift, and go to state 85
 
@@ -999,56 +1000,57 @@ State 40
 
 State 41
 
-   42 param: PWD . EQUALS TEXT
+   42 param: PWD . EQUALS INTEGER
+   43      | PWD . EQUALS TEXT
 
     EQUALS  shift, and go to state 87
 
 
 State 42
 
-   43 param: GRP . EQUALS TEXT
+   44 param: GRP . EQUALS TEXT
 
     EQUALS  shift, and go to state 88
 
 
 State 43
 
-   44 param: UGO . EQUALS INTEGER
+   45 param: UGO . EQUALS INTEGER
 
     EQUALS  shift, and go to state 89
 
 
 State 44
 
-   45 param: R .
-
-    $default  reduce using rule 45 (param)
-
-
-State 45
-
-   46 param: P .
+   46 param: R .
 
     $default  reduce using rule 46 (param)
 
 
+State 45
+
+   47 param: P .
+
+    $default  reduce using rule 47 (param)
+
+
 State 46
 
-   47 param: CONT . EQUALS TEXT
+   48 param: CONT . EQUALS TEXT
 
     EQUALS  shift, and go to state 90
 
 
 State 47
 
-   48 param: _FILE . EQUALS TEXT
+   49 param: _FILE . EQUALS TEXT
 
     EQUALS  shift, and go to state 91
 
 
 State 48
 
-   49 param: DEST . EQUALS TEXT
+   50 param: DEST . EQUALS TEXT
 
     EQUALS  shift, and go to state 92
 
@@ -1334,7 +1336,7 @@ State 84
 
 State 85
 
-   50 param: RUTA EQUALS . TEXT
+   51 param: RUTA EQUALS . TEXT
 
     TEXT  shift, and go to state 105
 
@@ -1348,44 +1350,46 @@ State 86
 
 State 87
 
-   42 param: PWD EQUALS . TEXT
+   42 param: PWD EQUALS . INTEGER
+   43      | PWD EQUALS . TEXT
 
-    TEXT  shift, and go to state 107
+    INTEGER  shift, and go to state 107
+    TEXT     shift, and go to state 108
 
 
 State 88
 
-   43 param: GRP EQUALS . TEXT
+   44 param: GRP EQUALS . TEXT
 
-    TEXT  shift, and go to state 108
+    TEXT  shift, and go to state 109
 
 
 State 89
 
-   44 param: UGO EQUALS . INTEGER
+   45 param: UGO EQUALS . INTEGER
 
-    INTEGER  shift, and go to state 109
+    INTEGER  shift, and go to state 110
 
 
 State 90
 
-   47 param: CONT EQUALS . TEXT
-
-    TEXT  shift, and go to state 110
-
-
-State 91
-
-   48 param: _FILE EQUALS . TEXT
+   48 param: CONT EQUALS . TEXT
 
     TEXT  shift, and go to state 111
 
 
-State 92
+State 91
 
-   49 param: DEST EQUALS . TEXT
+   49 param: _FILE EQUALS . TEXT
 
     TEXT  shift, and go to state 112
+
+
+State 92
+
+   50 param: DEST EQUALS . TEXT
+
+    TEXT  shift, and go to state 113
 
 
 State 93
@@ -1432,16 +1436,16 @@ State 98
 
 State 99
 
-   52 _type: PART_TYPE .
+   53 _type: PART_TYPE .
 
-    $default  reduce using rule 52 (_type)
+    $default  reduce using rule 53 (_type)
 
 
 State 100
 
-   51 _type: DELETE_TYPE .
+   52 _type: DELETE_TYPE .
 
-    $default  reduce using rule 51 (_type)
+    $default  reduce using rule 52 (_type)
 
 
 State 101
@@ -1474,9 +1478,9 @@ State 104
 
 State 105
 
-   50 param: RUTA EQUALS TEXT .
+   51 param: RUTA EQUALS TEXT .
 
-    $default  reduce using rule 50 (param)
+    $default  reduce using rule 51 (param)
 
 
 State 106
@@ -1488,41 +1492,48 @@ State 106
 
 State 107
 
-   42 param: PWD EQUALS TEXT .
+   42 param: PWD EQUALS INTEGER .
 
     $default  reduce using rule 42 (param)
 
 
 State 108
 
-   43 param: GRP EQUALS TEXT .
+   43 param: PWD EQUALS TEXT .
 
     $default  reduce using rule 43 (param)
 
 
 State 109
 
-   44 param: UGO EQUALS INTEGER .
+   44 param: GRP EQUALS TEXT .
 
     $default  reduce using rule 44 (param)
 
 
 State 110
 
-   47 param: CONT EQUALS TEXT .
+   45 param: UGO EQUALS INTEGER .
 
-    $default  reduce using rule 47 (param)
+    $default  reduce using rule 45 (param)
 
 
 State 111
 
-   48 param: _FILE EQUALS TEXT .
+   48 param: CONT EQUALS TEXT .
 
     $default  reduce using rule 48 (param)
 
 
 State 112
 
-   49 param: DEST EQUALS TEXT .
+   49 param: _FILE EQUALS TEXT .
 
     $default  reduce using rule 49 (param)
+
+
+State 113
+
+   50 param: DEST EQUALS TEXT .
+
+    $default  reduce using rule 50 (param)

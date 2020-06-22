@@ -204,7 +204,7 @@ int Reportes::repFile(const std::string &idPart, const std::string &path, const 
 
     std::string folderPath;
     std::string fileName;
-    MyStringUtil::splitFolderPathAndFileName(relativePath, folderPath, fileName);
+    MyStringUtil::splitFolderPathAndFileName(ruta, folderPath, fileName);
     std::string content = ExtManager::fileGetContent(&file, &closestInode);
 
     content = fileName + "\n\n*********************************************************\n\n" +

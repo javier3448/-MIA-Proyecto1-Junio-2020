@@ -358,7 +358,7 @@ int Interprete::rmgrp(ExtParams* params)
 int Interprete::mkusr(ExtParams* params)
 {
     std::string msg = exclusiveDefines(params,
-                                       pf::NAME | pf::PWD | pf::GRP,
+                                       pf::USR | pf::PWD | pf::GRP,
                                        0);
     if(msg.length()){
         msg = "Parametros no validos para comando mkusr: " + msg;
@@ -366,13 +366,13 @@ int Interprete::mkusr(ExtParams* params)
         return -1;
     }
 
-    return ExtManager::mkUsr(*params->name, *params->grp, *params->pwd);
+    return ExtManager::mkUsr(*params->usr, *params->grp, *params->pwd);
 }
 
 int Interprete::rmusr(ExtParams* params)
 {
     std::string msg = exclusiveDefines(params,
-                                       pf::NAME,
+                                       pf::USR,
                                        0);
     if(msg.length()){
         msg = "Parametros no validos para comando rmusr: " + msg;
@@ -380,7 +380,7 @@ int Interprete::rmusr(ExtParams* params)
         return -1;
     }
 
-    return ExtManager::rmUsr(*params->name);
+    return ExtManager::rmUsr(*params->usr);
 }
 
 int Interprete::chmod(ExtParams* params)
@@ -507,22 +507,7 @@ int Interprete::edit(ExtParams* params)
         return -1;
     }
 
-    std::optional<std::string> content;
-    std::string paramsCont;//Para hacer el journ mas adelante
-    if(params->cont){
-        paramsCont = *params->cont;
-        content = MyStringUtil::readFile(*params->cont);
-        if(!content){
-            Consola::reportarError("cont no es un archivo valido: <" + *params->cont + ">");
-            return -1;
-        }
-    }else{
-        paramsCont = "";
-        int size = (params->size == -1 ? 0 : params->size);
-        content = MyStringUtil::buildDigitString(size);
-    }
-
-    return ExtManager::edit(*params->path, content.value());
+    return ExtManager::edit(*params->path, *params->cont);
 }
 
 int Interprete::ren(ExtParams* params)
@@ -539,6 +524,12 @@ int Interprete::ren(ExtParams* params)
 
     if(!MyStringUtil::isValidExtPath(*params->path)){
         Consola::reportarError("Path no es un extpath: <" + *params->file+ ">");
+        return -1;
+    }
+
+    if(params->name->length() > 11 ||
+        params->name->length() < 1){
+        Consola::reportarError("name no valido: " + *params->name +  ". Debe de tener longitd ude de 1 a 11 characteres");
         return -1;
     }
 

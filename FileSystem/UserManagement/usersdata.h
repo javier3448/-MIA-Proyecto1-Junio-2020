@@ -28,6 +28,9 @@ public:
 
     bool hasUser(const std::string& name) const;
     bool tryRemoveUser(const std::string& name);
+    //Cambia el grupo del usuario llamado usrName a el grupo llamado newGroupName
+    //Retorna false si no existe usrName o no existe newGroupName
+    bool tryChangeGrp(const std::string& usrName, const std::string& newGrpName);
     std::string getUserString(int id, const std::string& name, const std::string& grp, const std::string& password) const;
     int getUserId(const std::string& name)const;
     std::string getUsrName(int id) const;

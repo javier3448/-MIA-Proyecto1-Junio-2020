@@ -27,8 +27,8 @@ public:
     static int logout();
     static int mkGrp(const std::string& name);
     static int rmGrp(const std::string& name);
-    static int mkUsr(const std::string& name, const std::string& grp , const std::string& pwd);
-    static int rmUsr(const std::string& name);
+    static int mkUsr(const std::string& usr, const std::string& grp , const std::string& pwd);
+    static int rmUsr(const std::string& usr);
     static int chmod(const std::string& path, int ugo, bool r, int paramsUgo);//paramsUgo es un chapuz horrible para que se pueda hacer el journaling chmod facil
     static int chown(const std::string& path, bool r, const std::string& usr);//paramsUgo es un chapuz horrible para que se pueda hacer el journaling chmod facil
     static int chgrp(const std::string& usr, const std::string& grp);//paramsUgo es un chapuz horrible para que se pueda hacer el journaling chmod facil
@@ -93,6 +93,14 @@ private:
     //retorna 1 si no ocurrio error pero no encontro el target: name; 0 si lo encontro y lo elimino
     //con exito; y -1 si no le elimino, ocurrio un error y no puede continuar la busqueda
     static int folderClearImp(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, char depth, int address);
+    //Retorna 0 si no hay error; -1 si se quedo sin espacio inodeEntity
+    //No revisa que tenga espacio en el disco.
+    //Si no hay espacio suficiente en folderEntity tira exception
+    static int folderAddSubInode(RaidOneFile* file, DiskEntity<SuperBoot>* sbEntity, DiskEntity<Inode>* folderEntity, const std::string& name, int subInodeAddress);
+    //Retorna 0 si logro agregar el subInodo.
+    //Retorna 1 si no se ha agregado el subinodo
+    //Retorna -1 si ocurrio error
+    static int folderAddSubInodeImp(RaidOneFile* file, DiskEntity<SuperBoot>* sbEntity, const std::string& name, int subInodeAddress, char depth, bool isNew, int blockAddress);
     static bool folderMkfileRecursively(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, DiskEntity<Inode> *folderEntity, int usrId, int grpId, int permissions, const std::string &path, const std::string &fileName, const std::string &content);
     //igual a noimp pero pasa el string por ref
     static bool folderMkfileRecursivelyImp(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, DiskEntity<Inode> *folderEntity, int usrId, int grpId, int permissions, std::string &remainingPath, const std::string &fileName, const std::string &content);
@@ -116,10 +124,19 @@ private:
     //Bad design: A diferencia de los otros metodos file no revisa que haya suficiente espacio
     //disponible, se espera que esta revision ocurra antes de llamar a este metodo. se tomo esa decision
     //porque este metodo se llamara recursivamente y es preferible hacer esos chequeos afuera de la recursion
-    static DiskEntity<Inode> folderCopy(RaidOneFile* file, DiskEntity<SuperBoot> *sbEntity, int usrId, int grpId, int permissions, DiskEntity<Inode> *folderEntity);
+    static DiskEntity<Inode> folderCopy(RaidOneFile* file, DiskEntity<SuperBoot> *sbEntity, DiskEntity<Inode> *folderEntity, int usrId, int grpId, int permissions);
     //retorna el puntero al nuevo bloque. El nuevo bloque es una compia del bloque en address
     static int folderCopyImp(RaidOneFile *file, DiskEntity<SuperBoot> *sbEntity, int usrId, int grpId, int permissions, char depth, int address);
 
+    //Reporta error de una vez en caso de ocurrir.
+    //Es un chapuz porque adentro de este metodo pueden ocurrir dos tipos de errores diferentes
+    //de permisos o de no existe el subinodo
+    static std::optional<DiskEntity<Inode>> folderPopSubInode(RaidOneFile* file, DiskEntity<Inode> *folderEntity, const std::string& name);
+    static std::optional<DiskEntity<Inode>> folderPopSubInodeImp(RaidOneFile* file, const std::string& name, char depth, int address);
+
+    //No verifica que no exista otro subInodo con nombre igual a newName
+    static int folderChangeSubInodeName(RaidOneFile* file, DiskEntity<Inode> *folderEntity, const std::string& oldName, const std::string& newName, int usrId, int grpId);
+    static int folderChangeSubInodeNameImp(RaidOneFile* file, const std::string& oldName, const std::string& newName, int usrId, int grpId, char depth, int address);
     //bad design
     //pasamos dos int como ref para llevar conteo en vez de retorna un pair<int, int>
     //es porque no se como hacer para mantener un retornar un pair sin tener que crear

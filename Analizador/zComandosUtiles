@@ -8,6 +8,8 @@ exec -path="/home/javier/Dropbox/Colegio/2020/VacasJunio/Archivos/Fase2/Archivos
 exec -path="/home/javier/Dropbox/Colegio/2020/VacasJunio/Archivos/Fase2/ArchivosDeEntradaFase2/MyEntrada1.sh"
 exec -path="/home/javier/Dropbox/Colegio/2020/VacasJunio/Archivos/Fase2/ArchivosDeEntradaFase2/entradaF2.sh"
 
+exec -path="/home/javier/Dropbox/Colegio/2020/VacasJunio/Archivos/Fase2/ArchivosDeEntradaFase2/Entrada6.sh"
+exec -path="/home/javier/Dropbox/Colegio/2020/VacasJunio/Archivos/Fase2/ArchivosDeEntradaFase2/CalificacionProyecto2.sh"
 
 #########################################################################################################################
 exec -path="/home/javier/Dropbox/Colegio/2020/VacasJunio/Archivos/Fase2/ArchivosDeEntradaFase2/remtest.sh"

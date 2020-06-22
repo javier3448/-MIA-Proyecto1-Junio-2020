@@ -37,12 +37,12 @@ int GraphvizHelper::writeDot(const std::string &path, const std::string &dotCode
 int GraphvizHelper::compileDot(const std::string &path, bool open)
 {
     //No creamos carpetar recursivas porque involucraria una segunda llamada al sistema
-    std::string command = "dot -Tpng '" + path + ".dot' -o '" + path + ".png'";
+    std::string command = "dot -Tsvg '" + path + ".dot' -o '" + path + ".svg'";
     system(command.c_str());//TODO. Ver que retorna esto en linux cuando hay error
 
     if (open)
     {
-        command = "nohup display '" + path + ".png' &";
+        command = "nohup display '" + path + ".svg' &";
         system(command.c_str());
     }
 

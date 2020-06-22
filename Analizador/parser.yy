@@ -457,6 +457,11 @@ param: SIZE EQUALS INTEGER
            lwhParams->setUsr($3);
        }
        |
+       PWD EQUALS INTEGER
+       {
+           lwhParams->setPwd(new std::string(std::to_string($3)));
+       }
+       |
        PWD EQUALS TEXT
        {
            lwhParams->setPwd($3);

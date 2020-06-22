@@ -47,6 +47,8 @@ SuperBoot::SuperBoot(char fsType, int partStart, int partSize)
     blockStart = inodeStart + (int)sizeof(Inode) * numeroDeEstructuras;
     firstFreeInode  = bitmapInodeBegin;
     firstFreeBlock  = bitmapBlockBegin;
+    this->updateLastMountTime();
+    this->updateLastUnmountTime();
 }
 
 SuperBoot::SuperBoot()

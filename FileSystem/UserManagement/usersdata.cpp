@@ -160,6 +160,26 @@ bool UsersData::tryRemoveUser(const std::string &name)
     return false;
 }
 
+bool UsersData::tryChangeGrp(const std::string &usrName, const std::string &newGrpName)
+{
+    for(auto& line : lines){
+        std::vector<std::string> attributes = MyStringUtil::tokenize(line, ',');
+        if(std::stoi(attributes[0]) == 0 ||
+            attributes[1] == "G"){
+            continue;
+        }
+        if(attributes[2] == usrName){
+            if(getGroupId(newGrpName) == -1){
+                return false;
+            }
+            line = attributes[0] + "," + attributes[1] + "," +
+                   attributes[2] + "," + newGrpName + "," + attributes[4];
+            return true;
+        }
+    }
+    return false;
+}
+
 std::string UsersData::getUserString(int id, const std::string& name, const std::string& grp, const std::string& password) const
 {
     return std::to_string(id) + "," + "U" + "," + name + "," + grp + "," + password + "\n";
