@@ -1,5 +1,8 @@
 ﻿#include "extmanager.h"
 
+#include <qjsonobject.h>
+#include <qjsondocument.h>
+
 #include "Disk/diskmanager.h"
 #include "FileSystem/superboot.h"
 #include "pointerblock.h"
@@ -9,6 +12,7 @@
 #include "FileSystem/journaling.h"
 #include "FileSystem/journmanager.h"
 #include "FileSystem/extutility.h" //DEBUG ONLY!!! TODO  QUITAR!!!!!
+#include "qdunixsocket.h"
 
 std::optional<UserSession> ExtManager::currUserSession = {};
 
@@ -998,6 +1002,54 @@ int ExtManager::mkDir(const std::string &path, bool p)
 
     sbEntity.updateDiskValue(&file);
 
+    return 0;
+}
+
+int ExtManager::synchronize(const std::string &id)
+{
+    auto mountedPart = DiskManager::getMountedPartition(id);
+    if(!mountedPart)
+    {
+        Consola::reportarError("No se ha montado una particion con el id: " + id);
+        return -1;
+    }
+
+    RaidOneFile file(mountedPart->path, std::ios::binary | std::ios::in | std::ios::out);
+    DiskEntity<SuperBoot> sbEntity(mountedPart->contentStart, &file);
+    if(sbEntity.value.magic != SuperBoot::MAGIC){
+        Consola::reportarError("No se puede hacer synchronize a una particion no formateada");
+        return -1;
+    }
+
+    DiskEntity<Inode> rootEntity = getRoot(&file, &sbEntity);
+
+    //json que se va a enviar por el socket
+    QJsonObject json;
+
+    QJsonObject partitionJson;
+    partitionJson.insert("name", mountedPart.value().name.c_str());
+    partitionJson.insert("path", mountedPart.value().path.c_str());
+    json.insert("partition", partitionJson);
+
+    QJsonArray inodesJson;
+
+    addInodeToJsonArray(&file, inodesJson, &rootEntity, "", "");
+
+    json.insert("inodes", inodesJson);
+
+    QJsonDocument doc(json);
+
+    QString strJson(doc.toJson(QJsonDocument::Compact));
+    std::cout << std::string(strJson.toUtf8()) << std::endl;
+
+    auto[out, err] = QdUnixSocket::sendMessage("/tmp/adexmailsocket", std::string(strJson.toUtf8()));
+
+    if(err.length() > 0){
+        Consola::reportarError("Error de en el socket: " + err);
+        return -1;
+    }
+
+    Consola::printLine(out);
     return 0;
 }
 
@@ -2991,6 +3043,44 @@ bool ExtManager::findImp(RaidOneFile *file, const std::string& inodeName, DiskEn
     }
 
     return foundInThisBranch;
+}
+
+void ExtManager::addInodeToJsonArray(RaidOneFile* file, QJsonArray &inodesArray, DiskEntity<Inode> *inodeEntity, const std::string &inodeName, const std::string &parentPath)
+{
+    QJsonObject inodeJson;
+    //Pensaria que este tipo de concatenaciones las optimiza bien chilero el compilador
+    //pero no estoy seguro
+    std::string absolutePath;
+    //if else: chapus para que tratar el caso especial si parentPath es root
+    if(parentPath.length() == 1){
+        absolutePath = parentPath + inodeName;
+    }
+    else{
+        absolutePath = parentPath + "/" + inodeName;
+    }
+
+    inodeJson.insert("absolute_path", absolutePath.c_str());
+    inodeJson.insert("usr_id", inodeEntity->value.usrId);
+    inodeJson.insert("grp_id", inodeEntity->value.grpId);
+    inodeJson.insert("access_time", MyStringUtil::dateToJsonString(inodeEntity->value.accessTime).c_str());
+    inodeJson.insert("creation_time", MyStringUtil::dateToJsonString(inodeEntity->value.creationTime).c_str());
+    inodeJson.insert("inode_type", inodeEntity->value.type);
+    inodeJson.insert("permissions", inodeEntity->value.permissions);
+
+    if(inodeEntity->value.isFolder()){
+        auto subInodes = folderGetSubNamedInodes(file, inodeEntity);
+        inodeJson.insert("sub_inode_count", (int) subInodes.size());
+        inodesArray.push_back(inodeJson);
+
+        for(auto[inodeName, subInode]: subInodes){
+            addInodeToJsonArray(file, inodesArray, &subInode, inodeName, absolutePath);
+        }
+    }
+    else{
+        std::string content = fileGetContent(file, inodeEntity);
+        inodeJson.insert("content", content.c_str());
+        inodesArray.push_back(inodeJson);
+    }
 }
 
 

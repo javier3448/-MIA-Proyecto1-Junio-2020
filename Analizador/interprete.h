@@ -75,6 +75,7 @@ namespace Interprete
     int find(ExtParams* params);
     int chown(ExtParams* params);
     int chgrp(ExtParams* params);
+    int synchronize(ExtParams* params);
 
     int rep(ExtParams* params);
 

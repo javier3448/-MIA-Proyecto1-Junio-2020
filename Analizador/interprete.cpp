@@ -653,6 +653,20 @@ int Interprete::chgrp(ExtParams* params)
     return ExtManager::chgrp(*params->usr, *params->grp);
 }
 
+int Interprete::synchronize(ExtParams *params)
+{
+    std::string msg = exclusiveDefines(params,
+                                       pf::ID,
+                                       0);
+    if(msg.length()){
+        msg = "Parametros no validos para comando synchronize: " + msg;
+        Consola::reportarError(msg);
+        return -1;
+    }
+
+    return ExtManager::synchronize(*params->id);
+}
+
 //Verifica si params contiene una definicion NO NULL para todos los parametros listados en flags
 //Retorna el mensaje de error en caso que un parametro este mal definido
 std::string Interprete::nullDefines(ExtParams* params, int paramFlag)
@@ -908,3 +922,4 @@ std::string Interprete::exclusiveDefines(ExtParams* params, int requiredParms, i
     std::string returnString = defines(params, requiredParms) + nullDefines(params, nullParams);
     return returnString;
 }
+

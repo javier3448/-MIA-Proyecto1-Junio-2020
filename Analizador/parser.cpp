@@ -158,24 +158,25 @@ extern int yydebug;
     FIND = 290,
     CHOWN = 291,
     CHGRP = 292,
-    USR = 293,
-    PWD = 294,
-    GRP = 295,
-    UGO = 296,
-    R = 297,
-    P = 298,
-    CONT = 299,
-    _FILE = 300,
-    DEST = 301,
-    LOGOUT = 302,
-    EQUALS = 303,
-    LINE_BREAK = 304,
-    INTEGER = 305,
-    TEXT = 306,
-    PART_TYPE = 307,
-    UNIT_TYPE = 308,
-    FIT_TYPE = 309,
-    DELETE_TYPE = 310
+    SYNCHRONIZE = 293,
+    USR = 294,
+    PWD = 295,
+    GRP = 296,
+    UGO = 297,
+    R = 298,
+    P = 299,
+    CONT = 300,
+    _FILE = 301,
+    DEST = 302,
+    LOGOUT = 303,
+    EQUALS = 304,
+    LINE_BREAK = 305,
+    INTEGER = 306,
+    TEXT = 307,
+    PART_TYPE = 308,
+    UNIT_TYPE = 309,
+    FIT_TYPE = 310,
+    DELETE_TYPE = 311
   };
 #endif
 
@@ -189,7 +190,7 @@ union SymbolType
     int intValue;
     std::string* stringPtrValue;
 
-#line 193 "parser.cpp" /* yacc.c:355  */
+#line 194 "parser.cpp" /* yacc.c:355  */
 };
 #line 32 "parser.yy" /* yacc.c:355  */
 typedef union SymbolType YYSTYPE;
@@ -220,7 +221,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 224 "parser.cpp" /* yacc.c:358  */
+#line 225 "parser.cpp" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -462,23 +463,23 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  74
+#define YYFINAL  76
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   112
+#define YYLAST   115
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  56
+#define YYNTOKENS  57
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  7
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  54
+#define YYNRULES  55
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  114
+#define YYNSTATES  116
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   310
+#define YYMAXUTOK   311
 
 #define YYTRANSLATE(YYX)                                                \
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -518,19 +519,19 @@ static const yytype_uint8 yytranslate[] =
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
       35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
       45,    46,    47,    48,    49,    50,    51,    52,    53,    54,
-      55
+      55,    56
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   107,   107,   113,   115,   118,   129,   140,   151,   162,
-     173,   184,   195,   206,   217,   228,   239,   250,   261,   272,
-     283,   294,   305,   316,   327,   338,   349,   360,   371,   382,
-     393,   405,   407,   410,   415,   420,   425,   430,   435,   440,
-     445,   450,   455,   460,   465,   470,   475,   480,   485,   490,
-     495,   500,   505,   511,   516
+       0,   108,   108,   114,   116,   119,   130,   141,   152,   163,
+     174,   185,   196,   207,   218,   229,   240,   251,   262,   273,
+     284,   295,   306,   317,   328,   339,   350,   361,   372,   383,
+     394,   405,   417,   419,   422,   427,   432,   437,   442,   447,
+     452,   457,   462,   467,   472,   477,   482,   487,   492,   497,
+     502,   507,   512,   517,   523,   528
 };
 #endif
 
@@ -543,11 +544,11 @@ static const char *const yytname[] =
   "NAME", "RM_DISK", "F_DISK", "TYPE", "DELETE", "ADD", "MOUNT", "UNMOUNT",
   "PAUSE", "REP", "ID", "RUTA", "MK_FS", "LOGIN", "MK_GRP", "RM_GRP",
   "MK_USR", "RM_USR", "CHMOD", "MK_FILE", "CAT", "REM", "EDIT", "REN",
-  "MK_DIR", "CP", "MV", "FIND", "CHOWN", "CHGRP", "USR", "PWD", "GRP",
-  "UGO", "R", "P", "CONT", "_FILE", "DEST", "LOGOUT", "EQUALS",
-  "LINE_BREAK", "INTEGER", "TEXT", "PART_TYPE", "UNIT_TYPE", "FIT_TYPE",
-  "DELETE_TYPE", "$accept", "S", "l_commands", "command", "l_params",
-  "param", "_type", YY_NULLPTR
+  "MK_DIR", "CP", "MV", "FIND", "CHOWN", "CHGRP", "SYNCHRONIZE", "USR",
+  "PWD", "GRP", "UGO", "R", "P", "CONT", "_FILE", "DEST", "LOGOUT",
+  "EQUALS", "LINE_BREAK", "INTEGER", "TEXT", "PART_TYPE", "UNIT_TYPE",
+  "FIT_TYPE", "DELETE_TYPE", "$accept", "S", "l_commands", "command",
+  "l_params", "param", "_type", YY_NULLPTR
 };
 #endif
 
@@ -561,7 +562,7 @@ static const yytype_uint16 yytoknum[] =
      275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
      285,   286,   287,   288,   289,   290,   291,   292,   293,   294,
      295,   296,   297,   298,   299,   300,   301,   302,   303,   304,
-     305,   306,   307,   308,   309,   310
+     305,   306,   307,   308,   309,   310,   311
 };
 # endif
 
@@ -579,18 +580,18 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      29,    66,    66,    66,    66,    66,   -29,    66,    66,    66,
-      66,    66,    66,    66,    66,    66,    66,    66,    66,    66,
-      66,    66,    66,    66,    66,    66,   -29,     4,   -29,    29,
-     -20,   -19,   -18,   -17,   -15,   -14,   -13,   -12,   -11,    -8,
-      -7,    -6,    -1,    19,   -29,   -29,    20,    21,    27,   -29,
-      66,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,
+      30,    68,    68,    68,    68,    68,   -29,    68,    68,    68,
+      68,    68,    68,    68,    68,    68,    68,    68,    68,    68,
+      68,    68,    68,    68,    68,    68,    68,   -29,     4,   -29,
+      30,   -20,   -19,   -18,   -17,   -15,   -14,   -13,   -12,   -11,
+      -8,    -7,    -6,    -1,    20,   -29,   -29,    21,    22,    28,
+     -29,    68,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,
      -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,
-     -29,   -29,   -29,   -29,   -29,   -29,    30,    31,    28,    32,
-      36,   -28,    33,    39,    40,    41,    42,   -25,    43,    45,
-      46,    47,    48,   -29,   -29,   -29,   -29,   -29,   -29,   -29,
+     -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,    31,    32,
+      29,    33,    37,   -28,    34,    40,    41,    42,    43,   -25,
+      44,    46,    47,    48,    49,   -29,   -29,   -29,   -29,   -29,
      -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,
-     -29,   -29,   -29,   -29
+     -29,   -29,   -29,   -29,   -29,   -29
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -600,28 +601,28 @@ static const yytype_uint8 yydefact[] =
 {
        0,     0,     0,     0,     0,     0,    10,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,    14,     0,     2,     4,
+       0,     0,     0,     0,     0,     0,     0,    14,     0,     2,
+       4,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,    48,    49,     0,     0,     0,
+       5,    33,     6,     7,     8,     9,    11,    12,    13,    15,
+      16,    17,    18,    19,    20,    21,    22,    23,    24,    25,
+      26,    27,    28,    29,    30,    31,     1,     3,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,    47,    48,     0,     0,     0,     5,
-      32,     6,     7,     8,     9,    11,    12,    13,    15,    16,
-      17,    18,    19,    20,    21,    22,    23,    24,    25,    26,
-      27,    28,    29,    30,     1,     3,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,    31,    33,    34,    36,    37,    35,    54,
-      53,    38,    39,    40,    41,    52,    42,    43,    44,    45,
-      46,    49,    50,    51
+       0,     0,     0,     0,     0,    32,    34,    35,    37,    38,
+      36,    55,    54,    39,    40,    41,    42,    53,    43,    44,
+      45,    46,    47,    50,    51,    52
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -29,   -29,    54,   -29,    -2,   -29,   -29
+     -29,   -29,    55,   -29,    -2,   -29,   -29
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,    27,    28,    29,    49,    50,   101
+      -1,    28,    29,    30,    50,    51,   103
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -629,34 +630,34 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-      51,    52,    53,    54,    74,    55,    56,    57,    58,    59,
-      60,    61,    62,    63,    64,    65,    66,    67,    68,    69,
-      70,    71,    72,    73,    99,   107,   108,   100,    76,    77,
-      78,    79,     1,    80,    81,    82,    83,    84,     2,     3,
-      85,    86,    87,     4,     5,     6,     7,    88,    93,     8,
-       9,    10,    11,    12,    13,    14,    15,    16,    17,    18,
-      19,    20,    21,    22,    23,    24,    25,    89,    90,    91,
-      30,    31,    32,    33,    34,    92,    26,    35,    36,    37,
-      94,    96,    95,    75,    38,    39,    97,    98,   102,   103,
-       0,   104,   105,   106,   109,   110,     0,   111,   112,   113,
-       0,     0,     0,     0,    40,    41,    42,    43,    44,    45,
-      46,    47,    48
+      52,    53,    54,    55,    76,    56,    57,    58,    59,    60,
+      61,    62,    63,    64,    65,    66,    67,    68,    69,    70,
+      71,    72,    73,    74,    75,   101,   109,   110,   102,    78,
+      79,    80,    81,     1,    82,    83,    84,    85,    86,     2,
+       3,    87,    88,    89,     4,     5,     6,     7,    90,    95,
+       8,     9,    10,    11,    12,    13,    14,    15,    16,    17,
+      18,    19,    20,    21,    22,    23,    24,    25,    26,    91,
+      92,    93,    31,    32,    33,    34,    35,    94,    27,    36,
+      37,    38,    96,    98,    97,    77,    39,    40,    99,   100,
+     104,   105,     0,   106,   107,   108,   111,   112,     0,   113,
+     114,   115,     0,     0,     0,     0,     0,    41,    42,    43,
+      44,    45,    46,    47,    48,    49
 };
 
 static const yytype_int8 yycheck[] =
 {
        2,     3,     4,     5,     0,     7,     8,     9,    10,    11,
       12,    13,    14,    15,    16,    17,    18,    19,    20,    21,
-      22,    23,    24,    25,    52,    50,    51,    55,    48,    48,
-      48,    48,     3,    48,    48,    48,    48,    48,     9,    10,
-      48,    48,    48,    14,    15,    16,    17,    48,    50,    20,
-      21,    22,    23,    24,    25,    26,    27,    28,    29,    30,
-      31,    32,    33,    34,    35,    36,    37,    48,    48,    48,
-       4,     5,     6,     7,     8,    48,    47,    11,    12,    13,
-      50,    53,    51,    29,    18,    19,    54,    51,    55,    50,
-      -1,    51,    51,    51,    51,    50,    -1,    51,    51,    51,
-      -1,    -1,    -1,    -1,    38,    39,    40,    41,    42,    43,
-      44,    45,    46
+      22,    23,    24,    25,    26,    53,    51,    52,    56,    49,
+      49,    49,    49,     3,    49,    49,    49,    49,    49,     9,
+      10,    49,    49,    49,    14,    15,    16,    17,    49,    51,
+      20,    21,    22,    23,    24,    25,    26,    27,    28,    29,
+      30,    31,    32,    33,    34,    35,    36,    37,    38,    49,
+      49,    49,     4,     5,     6,     7,     8,    49,    48,    11,
+      12,    13,    51,    54,    52,    30,    18,    19,    55,    52,
+      56,    51,    -1,    52,    52,    52,    52,    51,    -1,    52,
+      52,    52,    -1,    -1,    -1,    -1,    -1,    39,    40,    41,
+      42,    43,    44,    45,    46,    47
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -665,27 +666,27 @@ static const yytype_uint8 yystos[] =
 {
        0,     3,     9,    10,    14,    15,    16,    17,    20,    21,
       22,    23,    24,    25,    26,    27,    28,    29,    30,    31,
-      32,    33,    34,    35,    36,    37,    47,    57,    58,    59,
-       4,     5,     6,     7,     8,    11,    12,    13,    18,    19,
-      38,    39,    40,    41,    42,    43,    44,    45,    46,    60,
-      61,    60,    60,    60,    60,    60,    60,    60,    60,    60,
-      60,    60,    60,    60,    60,    60,    60,    60,    60,    60,
-      60,    60,    60,    60,     0,    58,    48,    48,    48,    48,
-      48,    48,    48,    48,    48,    48,    48,    48,    48,    48,
-      48,    48,    48,    60,    50,    51,    53,    54,    51,    52,
-      55,    62,    55,    50,    51,    51,    51,    50,    51,    51,
-      50,    51,    51,    51
+      32,    33,    34,    35,    36,    37,    38,    48,    58,    59,
+      60,     4,     5,     6,     7,     8,    11,    12,    13,    18,
+      19,    39,    40,    41,    42,    43,    44,    45,    46,    47,
+      61,    62,    61,    61,    61,    61,    61,    61,    61,    61,
+      61,    61,    61,    61,    61,    61,    61,    61,    61,    61,
+      61,    61,    61,    61,    61,    61,     0,    59,    49,    49,
+      49,    49,    49,    49,    49,    49,    49,    49,    49,    49,
+      49,    49,    49,    49,    49,    61,    51,    52,    54,    55,
+      52,    53,    56,    63,    56,    51,    52,    52,    52,    51,
+      52,    52,    51,    52,    52,    52
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    56,    57,    58,    58,    59,    59,    59,    59,    59,
-      59,    59,    59,    59,    59,    59,    59,    59,    59,    59,
-      59,    59,    59,    59,    59,    59,    59,    59,    59,    59,
-      59,    60,    60,    61,    61,    61,    61,    61,    61,    61,
-      61,    61,    61,    61,    61,    61,    61,    61,    61,    61,
-      61,    61,    61,    62,    62
+       0,    57,    58,    59,    59,    60,    60,    60,    60,    60,
+      60,    60,    60,    60,    60,    60,    60,    60,    60,    60,
+      60,    60,    60,    60,    60,    60,    60,    60,    60,    60,
+      60,    60,    61,    61,    62,    62,    62,    62,    62,    62,
+      62,    62,    62,    62,    62,    62,    62,    62,    62,    62,
+      62,    62,    62,    62,    63,    63
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
@@ -694,9 +695,9 @@ static const yytype_uint8 yyr2[] =
        0,     2,     1,     2,     1,     2,     2,     2,     2,     2,
        1,     2,     2,     2,     1,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     1,     3,     3,     3,     3,     3,     3,     3,
-       3,     3,     3,     3,     3,     3,     3,     1,     1,     3,
-       3,     3,     3,     1,     1
+       2,     2,     2,     1,     3,     3,     3,     3,     3,     3,
+       3,     3,     3,     3,     3,     3,     3,     3,     1,     1,
+       3,     3,     3,     3,     1,     1
 };
 
 
@@ -1287,7 +1288,7 @@ yyparse (void)
     lwhParams = new ExtParams();
 }
 
-#line 1291 "parser.cpp" /* yacc.c:1429  */
+#line 1292 "parser.cpp" /* yacc.c:1429  */
   yylsp[0] = yylloc;
   goto yysetstate;
 
@@ -1474,15 +1475,15 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 108 "parser.yy" /* yacc.c:1646  */
+#line 109 "parser.yy" /* yacc.c:1646  */
     {
         delete(lwhParams);
     }
-#line 1482 "parser.cpp" /* yacc.c:1646  */
+#line 1483 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 119 "parser.yy" /* yacc.c:1646  */
+#line 120 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("MK_DISK: ");
              if(Interprete::mkDisk(lwhParams) < 0){
@@ -1492,11 +1493,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1496 "parser.cpp" /* yacc.c:1646  */
+#line 1497 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 130 "parser.yy" /* yacc.c:1646  */
+#line 131 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("RM_DISK: ");
              if(Interprete::rmDisk(lwhParams) < 0){
@@ -1506,11 +1507,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1510 "parser.cpp" /* yacc.c:1646  */
+#line 1511 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 141 "parser.yy" /* yacc.c:1646  */
+#line 142 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("F_DISK: ");
              if(Interprete::fDisk(lwhParams) < 0){
@@ -1520,11 +1521,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1524 "parser.cpp" /* yacc.c:1646  */
+#line 1525 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 152 "parser.yy" /* yacc.c:1646  */
+#line 153 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("MOUNT: ");
              if(Interprete::mount(lwhParams) < 0){
@@ -1534,11 +1535,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1538 "parser.cpp" /* yacc.c:1646  */
+#line 1539 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 163 "parser.yy" /* yacc.c:1646  */
+#line 164 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("UNMOUNT: ");
              if(Interprete::unmount(lwhParams) < 0){
@@ -1548,11 +1549,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1552 "parser.cpp" /* yacc.c:1646  */
+#line 1553 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 174 "parser.yy" /* yacc.c:1646  */
+#line 175 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("PAUSE: ");
              if(Interprete::pause(lwhParams) < 0){
@@ -1562,11 +1563,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1566 "parser.cpp" /* yacc.c:1646  */
+#line 1567 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 185 "parser.yy" /* yacc.c:1646  */
+#line 186 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("REP: ");
              if(Interprete::rep(lwhParams) < 0){
@@ -1576,11 +1577,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1580 "parser.cpp" /* yacc.c:1646  */
+#line 1581 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 196 "parser.yy" /* yacc.c:1646  */
+#line 197 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("MK_FS: ");
              if(Interprete::mkfs(lwhParams) < 0){
@@ -1590,11 +1591,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1594 "parser.cpp" /* yacc.c:1646  */
+#line 1595 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 207 "parser.yy" /* yacc.c:1646  */
+#line 208 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("LOGIN: ");
              if(Interprete::login(lwhParams) < 0){
@@ -1604,11 +1605,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1608 "parser.cpp" /* yacc.c:1646  */
+#line 1609 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 218 "parser.yy" /* yacc.c:1646  */
+#line 219 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("LOGOUT: ");
              if(Interprete::logout(lwhParams) < 0){
@@ -1618,11 +1619,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1622 "parser.cpp" /* yacc.c:1646  */
+#line 1623 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 229 "parser.yy" /* yacc.c:1646  */
+#line 230 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("MK_GROUP: ");
              if(Interprete::mkgrp(lwhParams) < 0){
@@ -1632,11 +1633,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1636 "parser.cpp" /* yacc.c:1646  */
+#line 1637 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 240 "parser.yy" /* yacc.c:1646  */
+#line 241 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("RM_GROP: ");
              if(Interprete::rmgrp(lwhParams) < 0){
@@ -1646,11 +1647,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1650 "parser.cpp" /* yacc.c:1646  */
+#line 1651 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 251 "parser.yy" /* yacc.c:1646  */
+#line 252 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("MK_USR: ");
              if(Interprete::mkusr(lwhParams) < 0){
@@ -1660,11 +1661,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1664 "parser.cpp" /* yacc.c:1646  */
+#line 1665 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 262 "parser.yy" /* yacc.c:1646  */
+#line 263 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("RM_USR: ");
              if(Interprete::rmusr(lwhParams) < 0){
@@ -1674,11 +1675,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1678 "parser.cpp" /* yacc.c:1646  */
+#line 1679 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 273 "parser.yy" /* yacc.c:1646  */
+#line 274 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("CHMOD: ");
              if(Interprete::chmod(lwhParams) < 0){
@@ -1688,11 +1689,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1692 "parser.cpp" /* yacc.c:1646  */
+#line 1693 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 284 "parser.yy" /* yacc.c:1646  */
+#line 285 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("MK_FILE: ");
              if(Interprete::mkfile(lwhParams) < 0){
@@ -1702,11 +1703,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1706 "parser.cpp" /* yacc.c:1646  */
+#line 1707 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 295 "parser.yy" /* yacc.c:1646  */
+#line 296 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("CAT: ");
              if(Interprete::cat(lwhParams) < 0){
@@ -1716,11 +1717,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1720 "parser.cpp" /* yacc.c:1646  */
+#line 1721 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 306 "parser.yy" /* yacc.c:1646  */
+#line 307 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("REM: ");
              if(Interprete::rem(lwhParams) < 0){
@@ -1730,11 +1731,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1734 "parser.cpp" /* yacc.c:1646  */
+#line 1735 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 317 "parser.yy" /* yacc.c:1646  */
+#line 318 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("EDIT: ");
              if(Interprete::edit(lwhParams) < 0){
@@ -1744,11 +1745,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1748 "parser.cpp" /* yacc.c:1646  */
+#line 1749 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 328 "parser.yy" /* yacc.c:1646  */
+#line 329 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("REN: ");
              if(Interprete::ren(lwhParams) < 0){
@@ -1758,11 +1759,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1762 "parser.cpp" /* yacc.c:1646  */
+#line 1763 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 339 "parser.yy" /* yacc.c:1646  */
+#line 340 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("MK_DIR: ");
              if(Interprete::mkdir(lwhParams) < 0){
@@ -1772,11 +1773,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1776 "parser.cpp" /* yacc.c:1646  */
+#line 1777 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 350 "parser.yy" /* yacc.c:1646  */
+#line 351 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("CP: ");
              if(Interprete::cp(lwhParams) < 0){
@@ -1786,11 +1787,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1790 "parser.cpp" /* yacc.c:1646  */
+#line 1791 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 361 "parser.yy" /* yacc.c:1646  */
+#line 362 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("MV: ");
              if(Interprete::mv(lwhParams) < 0){
@@ -1800,11 +1801,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1804 "parser.cpp" /* yacc.c:1646  */
+#line 1805 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 372 "parser.yy" /* yacc.c:1646  */
+#line 373 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("FIND: ");
              if(Interprete::find(lwhParams) < 0){
@@ -1814,11 +1815,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1818 "parser.cpp" /* yacc.c:1646  */
+#line 1819 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 383 "parser.yy" /* yacc.c:1646  */
+#line 384 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("CHOWN: ");
              if(Interprete::chown(lwhParams) < 0){
@@ -1828,11 +1829,11 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1832 "parser.cpp" /* yacc.c:1646  */
+#line 1833 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 394 "parser.yy" /* yacc.c:1646  */
+#line 395 "parser.yy" /* yacc.c:1646  */
     {
              Consola::printCommandLine("CHGRP: ");
              if(Interprete::chgrp(lwhParams) < 0){
@@ -1842,187 +1843,201 @@ yyreduce:
              }
              lwhParams->reset();
          }
-#line 1846 "parser.cpp" /* yacc.c:1646  */
+#line 1847 "parser.cpp" /* yacc.c:1646  */
     break;
 
-  case 33:
-#line 411 "parser.yy" /* yacc.c:1646  */
+  case 31:
+#line 406 "parser.yy" /* yacc.c:1646  */
     {
-           lwhParams->setSize((yyvsp[0].intValue));
-       }
-#line 1854 "parser.cpp" /* yacc.c:1646  */
+             Consola::printCommandLine("SYNCHRONIZE: ");
+             if(Interprete::synchronize(lwhParams) < 0){
+                 Consola::reportarLinea(yylineno, column);
+             }else{
+                 Consola::printCommandLine("    DONE");
+             }
+             lwhParams->reset();
+         }
+#line 1861 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 416 "parser.yy" /* yacc.c:1646  */
+#line 423 "parser.yy" /* yacc.c:1646  */
     {
-           lwhParams->setPath((yyvsp[0].stringPtrValue));
+           lwhParams->setSize((yyvsp[0].intValue));
        }
-#line 1862 "parser.cpp" /* yacc.c:1646  */
+#line 1869 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 421 "parser.yy" /* yacc.c:1646  */
+#line 428 "parser.yy" /* yacc.c:1646  */
     {
-           lwhParams->setName((yyvsp[0].stringPtrValue));
+           lwhParams->setPath((yyvsp[0].stringPtrValue));
        }
-#line 1870 "parser.cpp" /* yacc.c:1646  */
+#line 1877 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 426 "parser.yy" /* yacc.c:1646  */
+#line 433 "parser.yy" /* yacc.c:1646  */
     {
-           lwhParams->setUnit((yyvsp[0].stringPtrValue));
+           lwhParams->setName((yyvsp[0].stringPtrValue));
        }
-#line 1878 "parser.cpp" /* yacc.c:1646  */
+#line 1885 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 431 "parser.yy" /* yacc.c:1646  */
+#line 438 "parser.yy" /* yacc.c:1646  */
     {
-           lwhParams->setFitType((yyvsp[0].stringPtrValue));
+           lwhParams->setUnit((yyvsp[0].stringPtrValue));
        }
-#line 1886 "parser.cpp" /* yacc.c:1646  */
+#line 1893 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 436 "parser.yy" /* yacc.c:1646  */
+#line 443 "parser.yy" /* yacc.c:1646  */
     {
-           lwhParams->setType((yyvsp[0].stringPtrValue));
+           lwhParams->setFitType((yyvsp[0].stringPtrValue));
        }
-#line 1894 "parser.cpp" /* yacc.c:1646  */
+#line 1901 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 441 "parser.yy" /* yacc.c:1646  */
+#line 448 "parser.yy" /* yacc.c:1646  */
     {
-           lwhParams->setDeleteType((yyvsp[0].stringPtrValue));
+           lwhParams->setType((yyvsp[0].stringPtrValue));
        }
-#line 1902 "parser.cpp" /* yacc.c:1646  */
+#line 1909 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 446 "parser.yy" /* yacc.c:1646  */
+#line 453 "parser.yy" /* yacc.c:1646  */
     {
-           lwhParams->setAdd((yyvsp[0].intValue));
+           lwhParams->setDeleteType((yyvsp[0].stringPtrValue));
        }
-#line 1910 "parser.cpp" /* yacc.c:1646  */
+#line 1917 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 451 "parser.yy" /* yacc.c:1646  */
+#line 458 "parser.yy" /* yacc.c:1646  */
     {
-           lwhParams->setId((yyvsp[0].stringPtrValue));
+           lwhParams->setAdd((yyvsp[0].intValue));
        }
-#line 1918 "parser.cpp" /* yacc.c:1646  */
+#line 1925 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 456 "parser.yy" /* yacc.c:1646  */
+#line 463 "parser.yy" /* yacc.c:1646  */
     {
-           lwhParams->setUsr((yyvsp[0].stringPtrValue));
+           lwhParams->setId((yyvsp[0].stringPtrValue));
        }
-#line 1926 "parser.cpp" /* yacc.c:1646  */
+#line 1933 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 461 "parser.yy" /* yacc.c:1646  */
+#line 468 "parser.yy" /* yacc.c:1646  */
     {
-           lwhParams->setPwd(new std::string(std::to_string((yyvsp[0].intValue))));
+           lwhParams->setUsr((yyvsp[0].stringPtrValue));
        }
-#line 1934 "parser.cpp" /* yacc.c:1646  */
+#line 1941 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 466 "parser.yy" /* yacc.c:1646  */
+#line 473 "parser.yy" /* yacc.c:1646  */
     {
-           lwhParams->setPwd((yyvsp[0].stringPtrValue));
+           lwhParams->setPwd(new std::string(std::to_string((yyvsp[0].intValue))));
        }
-#line 1942 "parser.cpp" /* yacc.c:1646  */
+#line 1949 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 471 "parser.yy" /* yacc.c:1646  */
+#line 478 "parser.yy" /* yacc.c:1646  */
     {
-           lwhParams->setGrp((yyvsp[0].stringPtrValue));
+           lwhParams->setPwd((yyvsp[0].stringPtrValue));
        }
-#line 1950 "parser.cpp" /* yacc.c:1646  */
+#line 1957 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 476 "parser.yy" /* yacc.c:1646  */
+#line 483 "parser.yy" /* yacc.c:1646  */
     {
-           lwhParams->setUgo((yyvsp[0].intValue));
+           lwhParams->setGrp((yyvsp[0].stringPtrValue));
        }
-#line 1958 "parser.cpp" /* yacc.c:1646  */
+#line 1965 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 481 "parser.yy" /* yacc.c:1646  */
+#line 488 "parser.yy" /* yacc.c:1646  */
     {
-           lwhParams->setR(true);
+           lwhParams->setUgo((yyvsp[0].intValue));
        }
-#line 1966 "parser.cpp" /* yacc.c:1646  */
+#line 1973 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 486 "parser.yy" /* yacc.c:1646  */
+#line 493 "parser.yy" /* yacc.c:1646  */
     {
-           lwhParams->setP(true);
+           lwhParams->setR(true);
        }
-#line 1974 "parser.cpp" /* yacc.c:1646  */
+#line 1981 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 491 "parser.yy" /* yacc.c:1646  */
+#line 498 "parser.yy" /* yacc.c:1646  */
     {
-           lwhParams->setCont((yyvsp[0].stringPtrValue));
+           lwhParams->setP(true);
        }
-#line 1982 "parser.cpp" /* yacc.c:1646  */
+#line 1989 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 496 "parser.yy" /* yacc.c:1646  */
+#line 503 "parser.yy" /* yacc.c:1646  */
     {
-           lwhParams->setFiles((yyvsp[0].stringPtrValue));
+           lwhParams->setCont((yyvsp[0].stringPtrValue));
        }
-#line 1990 "parser.cpp" /* yacc.c:1646  */
+#line 1997 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 501 "parser.yy" /* yacc.c:1646  */
+#line 508 "parser.yy" /* yacc.c:1646  */
     {
-           lwhParams->setDest((yyvsp[0].stringPtrValue));
+           lwhParams->setFiles((yyvsp[0].stringPtrValue));
        }
-#line 1998 "parser.cpp" /* yacc.c:1646  */
+#line 2005 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 506 "parser.yy" /* yacc.c:1646  */
+#line 513 "parser.yy" /* yacc.c:1646  */
     {
-           lwhParams->setRuta((yyvsp[0].stringPtrValue));
+           lwhParams->setDest((yyvsp[0].stringPtrValue));
        }
-#line 2006 "parser.cpp" /* yacc.c:1646  */
+#line 2013 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 512 "parser.yy" /* yacc.c:1646  */
+#line 518 "parser.yy" /* yacc.c:1646  */
     {
-           (yyval.stringPtrValue) = (yyvsp[0].stringPtrValue);
+           lwhParams->setRuta((yyvsp[0].stringPtrValue));
        }
-#line 2014 "parser.cpp" /* yacc.c:1646  */
+#line 2021 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 517 "parser.yy" /* yacc.c:1646  */
+#line 524 "parser.yy" /* yacc.c:1646  */
     {
            (yyval.stringPtrValue) = (yyvsp[0].stringPtrValue);
        }
-#line 2022 "parser.cpp" /* yacc.c:1646  */
+#line 2029 "parser.cpp" /* yacc.c:1646  */
+    break;
+
+  case 55:
+#line 529 "parser.yy" /* yacc.c:1646  */
+    {
+           (yyval.stringPtrValue) = (yyvsp[0].stringPtrValue);
+       }
+#line 2037 "parser.cpp" /* yacc.c:1646  */
     break;
 
 
-#line 2026 "parser.cpp" /* yacc.c:1646  */
+#line 2041 "parser.cpp" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2257,5 +2272,5 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 521 "parser.yy" /* yacc.c:1906  */
+#line 533 "parser.yy" /* yacc.c:1906  */
 

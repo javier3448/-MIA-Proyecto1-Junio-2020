@@ -168,6 +168,12 @@ std::string MyStringUtil::dateToString(const std::tm& time, const std::string& f
     return oss.str();
 }
 
+std::string MyStringUtil::dateToJsonString(const tm &time)
+{
+    std::ostringstream oss;
+    oss << std::put_time(&time, "%Y-%m-%dT%H:%M:%S.000Z");
+    return oss.str();
+}
 
 //Retorna un "null" si el caracter es 0
 std::string MyStringUtil::charToString(char c)
@@ -187,4 +193,5 @@ std::string MyStringUtil::floatToString(float f)
     stream << std::fixed << std::setprecision(2) << f;
     return stream.str();
 }
+
 

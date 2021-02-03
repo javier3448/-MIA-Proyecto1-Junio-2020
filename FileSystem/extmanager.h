@@ -5,6 +5,9 @@
 #include <cstring>
 #include <vector>
 #include <optional>
+
+#include <qjsonarray.h>
+
 #include "FileSystem/superboot.h"
 #include "FileSystem/UserManagement/usersession.h"
 #include "FileSystem/UserManagement/usersdata.h"
@@ -41,6 +44,8 @@ public:
     static int edit(const std::string& path, const std::string& content);
     static int ren(const std::string& path, const std::string& name);
     static int mkDir(const std::string& path, bool p);
+
+    static int synchronize(const std::string& id);
 
     //Verifica si la particion tiene un sb, de ser asi actualiza su lastMountTime
     static bool updateMountTime(RaidOneFile* file, const MountedPart& mountedPart);
@@ -149,7 +154,8 @@ private:
     //Returns true if a file with that name was found in this "branch"
     //Acepta inodes file e inodes directory
     static bool findImp(RaidOneFile *file, const std::string& inodeName, DiskEntity<Inode> *inode, std::string& buffer, const std::string& name, size_t indentation);
-    //Para manejar el journaling:
+
+    static void addInodeToJsonArray(RaidOneFile* file, QJsonArray& inodesArray, DiskEntity<Inode>* inodeEntity, const std::string& inodeName, const std::string& parentPath);
 
 friend int main();//Solo para debugging
 };

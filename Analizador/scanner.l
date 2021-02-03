@@ -80,6 +80,8 @@ equals "="
     "chown" { column = column + previous; previous = strlen(yytext); yylval.intValue = -1; return CHOWN; }
     "chgrp" { column = column + previous; previous = strlen(yytext); yylval.intValue = -1; return CHGRP; }
 
+    "synchronize" { column = column + previous; previous = strlen(yytext); yylval.intValue = -1; return SYNCHRONIZE; }
+
     "-usr" { column = column + previous; previous = strlen(yytext); yylval.intValue = -1; return USR; }
     "-pwd" { column = column + previous; previous = strlen(yytext); yylval.intValue = -1; return PWD; }
     "-grp" { column = column + previous; previous = strlen(yytext); yylval.intValue = -1; return GRP; }

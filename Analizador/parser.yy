@@ -73,6 +73,7 @@
 %token<intValue> FIND;
 %token<intValue> CHOWN;
 %token<intValue> CHGRP;
+%token<intValue> SYNCHRONIZE;
 %token<intValue>USR;
 %token<intValue>PWD;
 %token<intValue>GRP;
@@ -394,6 +395,17 @@ command: MK_DISK l_params
          {
              Consola::printCommandLine("CHGRP: ");
              if(Interprete::chgrp(lwhParams) < 0){
+                 Consola::reportarLinea(yylineno, column);
+             }else{
+                 Consola::printCommandLine("    DONE");
+             }
+             lwhParams->reset();
+         }
+         |
+         SYNCHRONIZE l_params
+         {
+             Consola::printCommandLine("SYNCHRONIZE: ");
+             if(Interprete::synchronize(lwhParams) < 0){
                  Consola::reportarLinea(yylineno, column);
              }else{
                  Consola::printCommandLine("    DONE");

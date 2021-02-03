@@ -86,24 +86,25 @@ extern int yydebug;
     FIND = 290,
     CHOWN = 291,
     CHGRP = 292,
-    USR = 293,
-    PWD = 294,
-    GRP = 295,
-    UGO = 296,
-    R = 297,
-    P = 298,
-    CONT = 299,
-    _FILE = 300,
-    DEST = 301,
-    LOGOUT = 302,
-    EQUALS = 303,
-    LINE_BREAK = 304,
-    INTEGER = 305,
-    TEXT = 306,
-    PART_TYPE = 307,
-    UNIT_TYPE = 308,
-    FIT_TYPE = 309,
-    DELETE_TYPE = 310
+    SYNCHRONIZE = 293,
+    USR = 294,
+    PWD = 295,
+    GRP = 296,
+    UGO = 297,
+    R = 298,
+    P = 299,
+    CONT = 300,
+    _FILE = 301,
+    DEST = 302,
+    LOGOUT = 303,
+    EQUALS = 304,
+    LINE_BREAK = 305,
+    INTEGER = 306,
+    TEXT = 307,
+    PART_TYPE = 308,
+    UNIT_TYPE = 309,
+    FIT_TYPE = 310,
+    DELETE_TYPE = 311
   };
 #endif
 
@@ -117,7 +118,7 @@ union SymbolType
     int intValue;
     std::string* stringPtrValue;
 
-#line 121 "parser.h" /* yacc.c:1909  */
+#line 122 "parser.h" /* yacc.c:1909  */
 };
 #line 32 "parser.yy" /* yacc.c:1909  */
 typedef union SymbolType YYSTYPE;

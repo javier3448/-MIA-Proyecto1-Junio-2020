@@ -2,7 +2,7 @@ TEMPLATE = app
 CONFIG += console c++17
 CONFIG += c++17
 CONFIG -= app_bundle
-CONFIG -= qt
+CONFIG += qt
 
 SOURCES += \
         Analizador/extparams.cpp \
@@ -38,6 +38,7 @@ SOURCES += \
         consola.cpp \
         main.cpp \
         mystringutil.cpp \
+        qdunixsocket.cpp \
         raidonefile.cpp
 
 DISTFILES += \
@@ -82,4 +83,5 @@ HEADERS += \
     diskentity.h \
     diskentity.hpp \
     mystringutil.h \
+    qdunixsocket.h \
     raidonefile.h

@@ -21,6 +21,7 @@ namespace  MyStringUtil
     std::string buildDigitString(int size);
     std::string intToHexString(int n);
     std::string dateToString(const std::tm& time, const std::string& fmt = "%d-%m-%Y %H:%M:%S");
+    std::string dateToJsonString(const std::tm& time);
     std::string charToString(char c);
     std::string floatToString(float f);
 };
