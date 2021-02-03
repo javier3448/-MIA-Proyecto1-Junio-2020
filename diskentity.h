@@ -1,6 +1,7 @@
 #ifndef DISKENTITY_H
 #define DISKENTITY_H
 
+
 #include "raidonefile.h"
 
 //Clase es medio chapus. Solo se puede usar si el file que se envia como parametro esta abierto
